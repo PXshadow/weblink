@@ -6,7 +6,10 @@ class Test
     {
         Sys.println("start test");
         var app = new weblink.Weblink();
-        app.get("/");
-        app.listen(8000);
+        app.get(function(request,response)
+        {
+            trace("request " + request.headers);
+        });
+        app.listen(2000);
     }
 }

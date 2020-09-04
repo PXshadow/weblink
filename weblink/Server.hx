@@ -25,19 +25,22 @@ class Server extends Socket
             {
                 //existing connections run through
                 var lines:Array<String> = [];
-                try {
-                    lines.push(socket.input.readLine());
-                }catch(e:Exception)
+                while (true)
                 {
-                    if (e.message != "Blocked")
+                    try {
+                        lines.push(socket.input.readLine());
+                    }catch(e:Exception)
                     {
-                        trace("error " + e.details());
+                        if (e.message != "Blocked")
+                        {
+                            trace("error " + e.details());
+                        }
+                        break;
                     }
-                    continue;
                 }
                 if (lines.length == 0) continue;
                 //go through lines
-                parent.get(new Request(lines),new Response(socket));
+                @:privateAccess parent.func(new Request(lines),new Response(socket));
             }
             //new connection
             var socket = accept();
