@@ -39,7 +39,7 @@ class Request
             }
         }
     }
-    private function response(parent:Server,socket:Socket):Response
+    private function response(parent:ServerInternal,socket:Socket):Response
     {
         @:privateAccess var rep = new Response(socket);
         var connection = headers.get("Connection");

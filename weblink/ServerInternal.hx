@@ -2,11 +2,10 @@ package weblink;
 
 import sys.thread.Thread;
 import haxe.http.HttpMethod;
-import haxe.Exception;
 import sys.net.Host;
 import sys.net.Socket;
 
-class Server extends Socket
+class ServerInternal extends Socket
 {
     var sockets:Array<Socket>;
     var parent:Weblink;
@@ -43,9 +42,9 @@ class Server extends Socket
                     try {
                         var line = socket.input.readLine();
                         lines.add(line);
-                    }catch(e:Exception)
+                    }catch(e:Dynamic)
                     {
-                        if (e.message != "Blocked")
+                        if (e != haxe.io.Error.Blocked)
                         {
                             trace("error " + e.details());
                             socket.close();

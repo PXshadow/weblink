@@ -1,10 +1,9 @@
 package weblink;
-
 import haxe.http.HttpMethod;
 
 class Weblink
 {
-    var server:Server;
+    var server:ServerInternal;
     var func:(request:Request,response:Response)->Void;
     public function new()
     {
@@ -16,7 +15,7 @@ class Weblink
     }
     public function listen(port:Int)
     {
-        server = new Server(port,this);
+        server = new ServerInternal(port,this);
         //blocking forever
         while (true) server.update();
     }
