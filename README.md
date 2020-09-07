@@ -1,6 +1,6 @@
 WebLink
 ======
-Linking [Hashlink](https://github.com/HaxeFoundation/hashlink) to the role of a webserver.
+Linking [Hashlink](https://github.com/HaxeFoundation/hashlink) and other [targets](#targets) to the role of a webserver.
 
 ```haxe
 class Main {
@@ -15,6 +15,13 @@ class Main {
 }
 ```
 
+# Targets 
+*require sys and threading*
+* hashlink (uses libuv) **hl**
+* c++ **hxcpp**
+* c# **hxcs**
+* neko **n**
+
 Getting Started
 ====
 
@@ -27,7 +34,9 @@ Include in build.hxml
 -lib weblink
 ```
 
-Features
+
+
+Supported
 ====
 - [methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
     - [x] GET
@@ -49,3 +58,6 @@ Features
     - [ ] bytes
     - [ ] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
     - [ ] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
+    - [ ] ssl
+    - [ ] [cert bot](https://certbot.eff.org/) easy integration
+    - [ ] serve web content (files ex: html/images/sounds)

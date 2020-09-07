@@ -34,9 +34,9 @@ class Test
             var http = new Http("localhost:2000");
             http.onData = function(text:String)
             {
+                app.close();
                 data(text);
                 trace('time ${Timer.stamp() - stamp}');
-                app.close();
                 Sys.exit(0);
             }
             http.onError = function(error:String)

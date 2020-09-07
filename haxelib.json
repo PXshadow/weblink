@@ -1,0 +1,15 @@
+{
+    "name": "weblink",
+    "license": "MIT",
+    "tags": [
+      "webserver",
+      "http",
+      "hashlink"
+    ],
+    "description": "Linking Hashlink and other targets to the role of a webserver.",
+    "contributors": [
+      "pxshadow"
+    ],
+    "releasenote": "",
+    "version": "0.0.1"
+  }
