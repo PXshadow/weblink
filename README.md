@@ -22,6 +22,13 @@ class Main {
 * c# **hxcs**
 * neko **n**
 
+Features
+====
+* Uses [libuv](https://github.com/libuv/libuv)(fast c async sockets) on hashlink
+* Minimal and concise with expressjs in mind
+* No dependencies, and easy integration
+
+
 Getting Started
 ====
 
@@ -33,8 +40,6 @@ Include in build.hxml
 ```
 -lib weblink
 ```
-
-
 
 Supported
 ====
