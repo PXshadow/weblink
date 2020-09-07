@@ -8,7 +8,7 @@ class Test
         var app = new weblink.Weblink();
         app.get(function(request,response)
         {
-            trace("request " + request.headers);
+            response.send("HELLO WORLD");
         });
         app.listen(2000);
     }

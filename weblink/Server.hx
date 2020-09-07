@@ -1,5 +1,6 @@
 package weblink;
 
+import sys.thread.Thread;
 import haxe.http.HttpMethod;
 import haxe.Exception;
 import sys.net.Host;
@@ -16,6 +17,18 @@ class Server extends Socket
         sockets = [];
         bind(new Host("0.0.0.0"),port);
         listen(100); //queue up 100 connection sockets
+        Thread.create(function()
+        {
+            while (true)
+            {
+                //new connection
+                var socket = accept();
+                trace("new connection!");
+                socket.setBlocking(false);
+                socket.setFastSend(true);
+                sockets.push(socket);
+            }
+        });
     }
     public function update()
     {
@@ -28,12 +41,16 @@ class Server extends Socket
                 while (true)
                 {
                     try {
-                        lines.push(socket.input.readLine());
+                        var line = socket.input.readLine();
+                        trace(line);
+                        lines.push(line);
                     }catch(e:Exception)
                     {
                         if (e.message != "Blocked")
                         {
                             trace("error " + e.details());
+                            socket.close();
+                            sockets.remove(socket);
                         }
                         break;
                     }
@@ -42,12 +59,7 @@ class Server extends Socket
                 //go through lines
                 @:privateAccess parent.func(new Request(lines),new Response(socket));
             }
-            //new connection
-            var socket = accept();
-            trace("new connection!");
-            socket.setBlocking(false);
-            socket.setFastSend(true);
-            sockets.push(socket);
+            Sys.sleep(1/15);
         }
     }
     override function close() 

@@ -18,10 +18,10 @@ class Request
     }
     public function read(lines:Array<String>)
     {
-        for (line in lines)
+        /*for (line in lines)
         {
             trace(line);
-        }
+        }*/
         var index = lines[0].indexOf("/");
         method = lines[0].substring(0,index - 1);
         for (i in 1...lines.length - 1)
