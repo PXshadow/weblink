@@ -19,7 +19,7 @@ class Response
     public function send(text:String)
     {
         var string = 'HTTP/1.1 $status OK\n' +
-        //'Acess-Control-Allow-Origin: *\n' +
+        'Acess-Control-Allow-Origin: *\n' +
         'Server: Custom\n' +
         'Date: Mon, 18 Jul 2016 16:06:00 GMT\n' +
         'Last-Modified: Mon, 18 Jul 2016 16:06:00 GMT\n' +
@@ -29,7 +29,7 @@ class Response
         {
             string += header.key + ": " + header.value + "\n";
         }
-        '\n$text';
+        string += '\n$text';
 
         trace(text);
         socket.output.writeString(string);
