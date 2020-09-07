@@ -26,3 +26,26 @@ Include in build.hxml
 ```
 -lib weblink
 ```
+
+Features
+====
+- [methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
+    - [x] GET
+    - [ ] POST
+    - [ ] OPTIONS
+    - [ ] HEAD
+    - [ ] PUT
+- [encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Compression)
+    - [ ] gzip
+    - [ ] compress
+    - [ ] deflate
+    - [ ] br
+- caching
+    - [ ] age
+    - [ ] expires
+- extra
+    - [ ] [content type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
+    - [ ] [cors](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+    - [ ] bytes
+    - [ ] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
+    - [ ] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
