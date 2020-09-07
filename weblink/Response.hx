@@ -20,9 +20,6 @@ class Response
     {
         var string = 'HTTP/1.1 $status OK\n' +
         'Acess-Control-Allow-Origin: *\n' +
-        'Server: Custom\n' +
-        'Date: Mon, 18 Jul 2016 16:06:00 GMT\n' +
-        'Last-Modified: Mon, 18 Jul 2016 16:06:00 GMT\n' +
         'Content-type: $contentType\n' +
         'Content-length: ${text.length}\n';
         if (headers != null) for (header in headers)
