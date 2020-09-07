@@ -1,8 +1,6 @@
 package weblink._internal;
-
-import sys.thread.Mutex;
+import haxe.MainLoop;
 import haxe.io.Bytes;
-import sys.thread.Thread;
 import haxe.http.HttpMethod;
 import sys.net.Host;
 import weblink._internal.Socket;
@@ -11,6 +9,7 @@ class Server extends SocketServer
 {
     var sockets:Array<Socket>;
     var parent:Weblink;
+    var running:Bool = true;
     #if hl var loop:hl.uv.Loop; #end
     public function new(port:Int,parent:Weblink)
     {
@@ -21,7 +20,7 @@ class Server extends SocketServer
         #else
         super();
         #end
-        bind(new Host(#if cs "127.0.0.1" #else "0.0.0.0" #end),port);
+        bind(new Host("0.0.0.0"),port);
         #if hl
         listen(100,function()
         {
@@ -45,25 +44,36 @@ class Server extends SocketServer
         });
         #else
         listen(100); //queue up 100 connection sockets
-        Thread.create(function()
+        sys.thread.Thread.create(function()
         {
-            while (true)
-            {
-                //new connection
-                trace("accept!");
-                var socket:Socket = cast accept();
-                socket.set();
-                sockets.push(socket);
-            }
+            while (running) getAccept();
         });
         #end
         this.parent = parent;
     }
+    #if !hl
+    private inline function getAccept()
+    {
+        try {
+            var socket:Socket = cast accept();
+            socket.set();
+            sockets.push(socket);
+        }catch(e:Dynamic)
+        {
+            if (!running) return;
+            trace("e " + e);
+        }
+    }
+    #end
     public function update()
     {
         #if !hl
-        while (true)
+        while (running)
         {
+            @:privateAccess MainLoop.tick();
+            #if !(target.threaded)
+            getAccept();
+            #end
             for (socket in sockets)
             {
                 //existing connections run through
@@ -95,9 +105,10 @@ class Server extends SocketServer
             Sys.sleep(1/15);
         }
         #else
-        while (true)
+        while (running)
         {
-            loop.run(Default);
+            @:privateAccess MainLoop.tick(); //for timers
+            loop.run(NoWait);
         }
         #end
     }
@@ -109,6 +120,10 @@ class Server extends SocketServer
             socket.close();
         }
         sockets = [];
+        running = false;
+        #if hl
+        loop.stop();
+        #end
         super.close();
     }
 }

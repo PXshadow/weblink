@@ -15,13 +15,6 @@ class Main {
 }
 ```
 
-# Targets 
-*require sys and threading*
-* hashlink (uses libuv) **hl**
-* c++ **hxcpp**
-* c# **hxcs**
-* neko **n**
-
 Features
 ====
 * Uses [libuv](https://github.com/libuv/libuv)(fast c async sockets) on hashlink
@@ -40,6 +33,12 @@ Include in build.hxml
 ```
 -lib weblink
 ```
+
+# Targets 
+*require sys and threading (or coroutine support in the future)*
+* hashlink (uses libuv) **hl**
+* c++ **hxcpp**
+* neko **n**
 
 Supported
 ====

@@ -1,10 +1,10 @@
 -cp tests
 -main Test
+-D http
 #-D curl
 --each
 -hl test.hl
 --next
 -neko test.n
 --next
--lib hxcs
--cs bin/cs
+--java bin/java

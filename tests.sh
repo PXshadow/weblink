@@ -1,3 +1,4 @@
+haxelib git hxjava https://github.com/HaxeFoundation/hxjava
 haxe tests.hxml
 neko test.n
 hl test.hl

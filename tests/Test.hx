@@ -3,7 +3,6 @@ package;
 import haxe.Timer;
 import sys.io.Process;
 import haxe.Http;
-import sys.thread.Thread;
 
 class Test
 {
@@ -18,33 +17,44 @@ class Test
         function data(text:String)
         {
             text = StringTools.replace(text,"\n","");
-            if (text != "HELLO WORLD") throw 'Invalid data: $text';
+            if (text != "HELLO WORLD") 
+            {
+                app.close();
+                throw 'Invalid data: $text';
+            }
             trace('Data retrieved: $text');
+            app.close();
         }
-        Thread.create(function()
+        Timer.delay(function()
         {
-            Sys.sleep(1);
+            trace("START!");
             #if curl
             trace("CURL");
             var curl = new Process("curl localhost:2000");
             data(curl.stdout.readLine());
             #end
-            trace("HTTP");
-            var stamp = Timer.stamp();
-            var http = new Http("localhost:2000");
-            http.onData = function(text:String)
+            #if (http && (target.threaded))
+            sys.thread.Thread.create(function()
             {
-                app.close();
-                data(text);
-                trace('time ${Timer.stamp() - stamp}');
-                Sys.exit(0);
-            }
-            http.onError = function(error:String)
-            {
-                trace("error: " + error);
-            }
-            http.request(false);
-        });
-        app.listen(2000);
+                var stamp = Timer.stamp();
+                var http = new Http("localhost:2000");
+                http.onData = function(text:String)
+                {
+                    trace('time ${Timer.stamp() - stamp}');
+                    data(text);
+                }
+                http.onError = function(error:String)
+                {
+                    trace("error: " + error);
+                }
+                http.request(false);
+            });
+            #end
+        },1000);
+        Timer.delay(function()
+        {
+            trace("set listen");
+            app.listen(2000);
+        },0);
     }
 }
