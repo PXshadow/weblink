@@ -6,5 +6,3 @@
 -hl test.hl
 --next
 -neko test.n
---next
---java bin/java
