@@ -1,3 +1,10 @@
 -cp tests
 -main Test
+#-D curl
+--each
 -hl test.hl
+--next
+-neko test.n
+--next
+-lib hxcs
+-cs bin/cs

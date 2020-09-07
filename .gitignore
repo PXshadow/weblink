@@ -1,2 +1,7 @@
 .vscode
 *.hl
+/*.hx
+*.n
+*.js
+bin
+*.cppia

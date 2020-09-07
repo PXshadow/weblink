@@ -1,8 +1,7 @@
 package weblink;
 
-import haxe.ds.List;
-import sys.net.Socket;
 import haxe.http.HttpStatus;
+import weblink._internal.Socket;
 
 class Response
 {
@@ -28,7 +27,7 @@ class Response
             string += header.key + ": " + header.value + "\r\n";
         }
         string += '\r\n$text';
-        socket.output.writeString(string);
+        socket.writeString(string);
         //if (close) socket.close();
     }
 }

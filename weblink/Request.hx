@@ -1,7 +1,7 @@
 package weblink;
-import sys.net.Socket;
 import haxe.http.HttpMethod;
 import haxe.ds.StringMap;
+import weblink._internal.Server;
 
 class Request
 {
@@ -12,12 +12,12 @@ class Request
     public var headers:StringMap<String>;
     public var text:String;
     public var method:HttpMethod;
-    private function new(lines:List<String>)
+    private function new(lines:Array<String>)
     {
         headers = new StringMap<String>();
         read(lines);
     }
-    private function read(lines:List<String>)
+    private function read(lines:Array<String>)
     {
         var first = lines.pop();
         var index = first.indexOf("/");
@@ -39,7 +39,7 @@ class Request
             }
         }
     }
-    private function response(parent:ServerInternal,socket:Socket):Response
+    private function response(parent:Server,socket):Response
     {
         @:privateAccess var rep = new Response(socket);
         var connection = headers.get("Connection");
