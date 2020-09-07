@@ -19,7 +19,8 @@ class Test
             var http = new Http("localhost:2000");
             http.onData = function(text:String)
             {
-                trace("http: " + text);
+                if (text != "HELLO WORLD") throw 'Invalid data: $text';
+                Sys.exit(0);
             }
             http.onError = function(error:String)
             {

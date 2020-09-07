@@ -14,3 +14,15 @@ class Main {
     }
 }
 ```
+
+Getting Started
+====
+
+Install dev version:
+```
+haxelib git weblink https://github.com/PXshadow/weblink
+```
+Include in build.hxml
+```
+-lib weblink
+```
