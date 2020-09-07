@@ -10,7 +10,8 @@ class Response
     public var contentType:String;
     public var headers:List<Header>;
     var socket:Socket;
-    public function new(socket:Socket)
+    var close:Bool = true;
+    private function new(socket:Socket)
     {
         this.socket = socket;
         contentType = "text/text";
@@ -18,18 +19,17 @@ class Response
     }
     public function send(text:String)
     {
-        var string = 'HTTP/1.1 $status OK\n' +
-        'Acess-Control-Allow-Origin: *\n' +
-        'Content-type: $contentType\n' +
-        'Content-length: ${text.length}\n';
+        var string = 'HTTP/1.1 $status OK\r\n' +
+        'Acess-Control-Allow-Origin: *\r\n' +
+        'Content-type: $contentType\r\n' +
+        'Content-length: ${text.length}\r\n';
         if (headers != null) for (header in headers)
         {
-            string += header.key + ": " + header.value + "\n";
+            string += header.key + ": " + header.value + "\r\n";
         }
-        string += '\n$text';
-
-        trace(text);
+        string += '\r\n$text';
         socket.output.writeString(string);
+        //if (close) socket.close();
     }
 }
 private typedef Header = {key:String,value:String}

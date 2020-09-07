@@ -37,13 +37,12 @@ class Server extends Socket
             for (socket in sockets)
             {
                 //existing connections run through
-                var lines:Array<String> = [];
+                var lines = new List<String>();
                 while (true)
                 {
                     try {
                         var line = socket.input.readLine();
-                        trace(line);
-                        lines.push(line);
+                        lines.add(line);
                     }catch(e:Exception)
                     {
                         if (e.message != "Blocked")
@@ -57,7 +56,9 @@ class Server extends Socket
                 }
                 if (lines.length == 0) continue;
                 //go through lines
-                @:privateAccess parent.func(new Request(lines),new Response(socket));
+                @:privateAccess var request = new Request(lines);
+                @:privateAccess var response = request.response(this,socket);
+                @:privateAccess parent.func(request,response);
             }
             Sys.sleep(1/15);
         }

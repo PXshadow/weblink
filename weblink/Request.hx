@@ -1,4 +1,5 @@
 package weblink;
+import sys.net.Socket;
 import haxe.http.HttpMethod;
 import haxe.ds.StringMap;
 
@@ -11,23 +12,20 @@ class Request
     public var headers:StringMap<String>;
     public var text:String;
     public var method:HttpMethod;
-    public function new(lines:Array<String>)
+    private function new(lines:List<String>)
     {
         headers = new StringMap<String>();
         read(lines);
     }
-    public function read(lines:Array<String>)
+    private function read(lines:List<String>)
     {
-        /*for (line in lines)
+        var first = lines.pop();
+        var index = first.indexOf("/");
+        method = first.substring(0,index - 1);
+        for (line in lines)
         {
-            trace(line);
-        }*/
-        var index = lines[0].indexOf("/");
-        method = lines[0].substring(0,index - 1);
-        for (i in 1...lines.length - 1)
-        {
-            index = lines[i].indexOf(":");
-            headers.set(lines[i].substring(0,index),lines[i].substring(index + 2));
+            index = line.indexOf(":");
+            headers.set(line.substring(0,index),line.substring(index + 2));
         }
         if (headers.exists("Cookie"))
         {
@@ -40,5 +38,13 @@ class Request
                 cookies.set(string.substring(0,index),string.substring(index + 1));
             }
         }
+    }
+    private function response(parent:Server,socket:Socket):Response
+    {
+        @:privateAccess var rep = new Response(socket);
+        var connection = headers.get("Connection");
+        if (connection != null) @:privateAccess rep.close = connection.toLowerCase() != "keep-alive";
+        @:privateAccess parent.sockets.remove(socket);
+        return rep;
     }
 }
