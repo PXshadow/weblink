@@ -19,6 +19,7 @@ class Request
     }
     private function read(lines:Array<String>)
     {
+        //for (line in lines) trace(line);
         var first = lines.shift();
         var index = first.indexOf("/");
         path = first.substring(index,first.indexOf(" ",index + 1));
