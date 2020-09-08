@@ -19,14 +19,16 @@ class Request
     }
     private function read(lines:Array<String>)
     {
-        var first = lines.pop();
+        var first = lines.shift();
         var index = first.indexOf("/");
+        path = first.substring(index,first.indexOf(" ",index + 1));
         method = first.substring(0,index - 1);
         for (line in lines)
         {
             index = line.indexOf(":");
             headers.set(line.substring(0,index),line.substring(index + 2));
         }
+        baseUrl = headers.get("Host");
         if (headers.exists("Cookie"))
         {
             cookies = new StringMap<String>();

@@ -1,7 +1,7 @@
 package weblink._internal;
 
 import haxe.io.Bytes;
-private typedef Basic = #if hl hl.uv.Stream #else sys.net.Socket #end
+private typedef Basic = #if (hl && !nolibuv) hl.uv.Stream #else sys.net.Socket #end
 abstract Socket(Basic)
 {
     inline public function new(i:Basic)
@@ -10,13 +10,13 @@ abstract Socket(Basic)
     }
     public function writeString(string:String)
     {
-        #if hl
+        #if (hl && !nolibuv)
         this.write(Bytes.ofString(string));
         #else
         this.output.writeString(string);
         #end
     }
-    #if !hl
+    #if (!hl || nolibuv)
     public inline function set()
     {
         this.setBlocking(false);

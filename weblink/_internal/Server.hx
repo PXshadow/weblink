@@ -10,18 +10,19 @@ class Server extends SocketServer
     var sockets:Array<Socket>;
     var parent:Weblink;
     var running:Bool = true;
-    #if hl var loop:hl.uv.Loop; #end
+    #if (hl && !nolibuv) var loop:hl.uv.Loop; #end
     public function new(port:Int,parent:Weblink)
     {
         sockets = [];
-        #if hl
+        #if (hl && !nolibuv)
         loop = hl.uv.Loop.getDefault();
         super(loop);
         #else
         super();
         #end
         bind(new Host("0.0.0.0"),port);
-        #if hl
+        #if (hl && !nolibuv)
+        noDelay(true);
         listen(100,function()
         {
             var stream = accept();
@@ -51,7 +52,7 @@ class Server extends SocketServer
         #end
         this.parent = parent;
     }
-    #if !hl
+    #if (!hl || nolibuv)
     private inline function getAccept()
     {
         try {
@@ -67,7 +68,7 @@ class Server extends SocketServer
     #end
     public function update()
     {
-        #if !hl
+        #if (!hl || nolibuv)
         while (running)
         {
             @:privateAccess MainLoop.tick();
@@ -112,7 +113,7 @@ class Server extends SocketServer
         }
         #end
     }
-    override function close(#if hl ?callb:() -> Void #end) 
+    override function close(#if (hl && !nolibuv) ?callb:() -> Void #end) 
     {
         //remove sockets array as well
         for (socket in sockets)
@@ -121,7 +122,7 @@ class Server extends SocketServer
         }
         sockets = [];
         running = false;
-        #if hl
+        #if (hl && !nolibuv)
         loop.stop();
         #end
         super.close();

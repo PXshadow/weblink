@@ -12,7 +12,7 @@ class Test
         var app = new weblink.Weblink();
         app.get(function(request,response)
         {
-            response.send("HELLO WORLD\n");
+            response.send("HELLO WORLD" + Date.now() + "\n");
         });
         function data(text:String)
         {
