@@ -8,12 +8,20 @@ abstract Socket(Basic)
     {
         this = i;
     }
-    public function writeString(string:String)
+    public inline function writeString(string:String)
     {
         #if (hl && !nolibuv)
         this.write(Bytes.ofString(string));
         #else
         this.output.writeString(string);
+        #end
+    }
+    public inline function writeBytes(bytes:Bytes)
+    {
+        #if (hl && !nolibuv)
+        this.write(bytes);
+        #else
+        this.output.write(bytes);
         #end
     }
     #if (!hl || nolibuv)

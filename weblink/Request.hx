@@ -44,7 +44,7 @@ class Request
     }
     private function response(parent:Server,socket):Response
     {
-        @:privateAccess var rep = new Response(socket);
+        @:privateAccess var rep = new Response(socket,parent);
         var connection = headers.get("Connection");
         if (connection != null) @:privateAccess rep.close = connection.toLowerCase() != "keep-alive";
         @:privateAccess parent.sockets.remove(socket);
