@@ -23,7 +23,7 @@ class Response
     }
     public inline function sendTextBytes(bytes:Bytes)
     {
-        sendHeaders(bytes.length * 4);
+        sendHeaders(bytes.length);
         socket.writeBytes(bytes);
         end();
     }
@@ -48,7 +48,7 @@ class Response
     public function sendHeaders(length:Int)
     {
         var string = 'HTTP/1.1 $status OK\r\n' +
-        'Acess-Control-Allow-Origin: *\r\n' +
+        //'Acess-Control-Allow-Origin: *\r\n' +
         'Content-type: $contentType\r\n' +
         'Content-length: $length\r\n';
         if (headers != null) 

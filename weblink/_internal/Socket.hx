@@ -11,9 +11,9 @@ abstract Socket(Basic)
     public inline function writeString(string:String)
     {
         #if (hl && !nolibuv)
-        this.write(Bytes.ofString(string));
+        this.write(Bytes.ofString(string,UTF8));
         #else
-        this.output.writeString(string);
+        this.output.writeString(string,UTF8);
         #end
     }
     public inline function writeBytes(bytes:Bytes)
