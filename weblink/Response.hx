@@ -38,10 +38,7 @@ class Response
     {
         if (close) 
         {
-            socket.close();
-            #if (!hl || nolibuv)
-            @:privateAccess server.sockets.remove(socket);
-            #end
+            server.closeSocket(socket);
         }
         socket = null;
         server = null;
@@ -51,6 +48,7 @@ class Response
         var string = new StringBuf();
         string.add('HTTP/1.1 $status OK\r\n' +
         //'Acess-Control-Allow-Origin: *\r\n' +
+        'Connection: ${close ? "close" : "keep-alive"}\r\n' +
         'Content-type: $contentType\r\n' +
         'Content-length: $length\r\n');
         if (headers != null) 

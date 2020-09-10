@@ -89,8 +89,7 @@ class Server extends SocketServer
                         if (e != haxe.io.Error.Blocked)
                         {
                             trace("error " + e);
-                            socket.close();
-                            sockets.remove(socket);
+                            closeSocket(socket);
                         }
                         break;
                     }
@@ -112,6 +111,11 @@ class Server extends SocketServer
             loop.run(NoWait);
         }
         #end
+    }
+    public inline function closeSocket(socket:Socket)
+    {
+        sockets.remove(socket);
+        socket.close();
     }
     override function close(#if (hl && !nolibuv) ?callb:() -> Void #end) 
     {

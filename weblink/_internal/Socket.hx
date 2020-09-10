@@ -37,6 +37,9 @@ abstract Socket(Basic)
     #end
     public function close()
     {
+        #if (hl && !nolibuv)
+        this.readStop();
+        #end
         this.close();
     }
 }
