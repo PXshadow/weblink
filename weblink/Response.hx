@@ -23,14 +23,15 @@ class Response
     }
     public inline function sendTextBytes(bytes:Bytes)
     {
-        sendHeaders(bytes.length);
+        socket.writeString(sendHeaders(bytes.length).toString());
         socket.writeBytes(bytes);
         end();
     }
     public inline function send(data:String)
     {
-        sendHeaders(data.length);
-        socket.writeString(data);
+        var buff = sendHeaders(data.length);
+        buff.add(data);
+        socket.writeString(buff.toString());
         end();
     }
     private function end()
@@ -45,22 +46,23 @@ class Response
         socket = null;
         server = null;
     }
-    public function sendHeaders(length:Int)
+    public inline function sendHeaders(length:Int):StringBuf
     {
-        var string = 'HTTP/1.1 $status OK\r\n' +
+        var string = new StringBuf();
+        string.add('HTTP/1.1 $status OK\r\n' +
         //'Acess-Control-Allow-Origin: *\r\n' +
         'Content-type: $contentType\r\n' +
-        'Content-length: $length\r\n';
+        'Content-length: $length\r\n');
         if (headers != null) 
         {
             for (header in headers)
             {
-                string += header.key + ": " + header.value + "\r\n";
+                string.add(header.key + ": " + header.value + "\r\n");
             }
             headers = null;
         }
-        string += "\r\n";
-        socket.writeString(string);
+        string.add("\r\n");
+        return string;
     }
 }
 private typedef Header = {key:String,value:String}

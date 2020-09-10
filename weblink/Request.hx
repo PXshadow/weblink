@@ -46,7 +46,7 @@ class Request
     {
         @:privateAccess var rep = new Response(socket,parent);
         var connection = headers.get("Connection");
-        if (connection != null) @:privateAccess rep.close = connection.toLowerCase() != "keep-alive";
+        if (connection != null) @:privateAccess rep.close = connection.toLowerCase() != "close"; //assume keep alive HTTP 1.1
         @:privateAccess parent.sockets.remove(socket);
         return rep;
     }
