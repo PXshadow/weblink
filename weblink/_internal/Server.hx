@@ -89,6 +89,7 @@ class Server extends SocketServer
                         if (e != haxe.io.Error.Blocked)
                         {
                             trace("error " + e);
+                            lines = [];
                             closeSocket(socket);
                         }
                         break;
