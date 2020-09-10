@@ -17,9 +17,8 @@ class Request
         headers = new StringMap<String>();
         read(lines);
     }
-    private function read(lines:Array<String>)
+    private inline function read(lines:Array<String>)
     {
-        //for (line in lines) trace(line);
         var first = lines.shift();
         var index = first.indexOf("/");
         path = first.substring(index,first.indexOf(" ",index + 1));
@@ -46,8 +45,7 @@ class Request
     {
         @:privateAccess var rep = new Response(socket,parent);
         var connection = headers.get("Connection");
-        if (connection != null) @:privateAccess rep.close = connection.toLowerCase() != "close"; //assume keep alive HTTP 1.1
-        @:privateAccess parent.sockets.remove(socket);
+        if (connection != null) @:privateAccess rep.close = connection == "close"; //assume keep alive HTTP 1.1
         return rep;
     }
 }

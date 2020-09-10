@@ -17,9 +17,10 @@ class Main {
 
 Features
 ====
-* Uses [libuv](https://github.com/libuv/libuv)(fast c async sockets) on hashlink
-* Minimal and concise with expressjs in mind
+* Uses [libuv](https://github.com/libuv/libuv) on hashlink target, can be disabled with ```-D nolibuv```
+* Minimal and concise with express lib in mind
 * No dependencies, and easy integration
+* Extremely fast, roughly 4x faster than Fastify with big data, and 2x with small [Benchmark](https://github.com/PXshadow/weblinkBenchmark)
 
 
 Getting Started
