@@ -21,7 +21,7 @@ class Response
         contentType = "text/text";
         status = OK;
     }
-    public inline function sendTextBytes(bytes:Bytes)
+    public inline function sendBytes(bytes:Bytes)
     {
         socket.writeString(sendHeaders(bytes.length).toString());
         socket.writeBytes(bytes);
@@ -63,4 +63,3 @@ class Response
         return string;
     }
 }
-private typedef Header = {key:String,value:String}

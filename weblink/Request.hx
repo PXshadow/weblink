@@ -1,4 +1,5 @@
 package weblink;
+import haxe.io.Bytes;
 import haxe.http.HttpMethod;
 import haxe.ds.StringMap;
 import weblink._internal.Server;
@@ -12,21 +13,27 @@ class Request
     public var headers:StringMap<String>;
     public var text:String;
     public var method:HttpMethod;
+    public var data:Bytes;
+    public var length:Int;
+    var pos:Int;
     private function new(lines:Array<String>)
     {
         headers = new StringMap<String>();
+        data = null;
         read(lines);
     }
     private inline function read(lines:Array<String>)
     {
-        var first = lines.shift();
+        var index = 0;
+        var first = lines[0];
         var index = first.indexOf("/");
         path = first.substring(index,first.indexOf(" ",index + 1));
         method = first.substring(0,index - 1);
-        for (line in lines)
+        for (i in 0...lines.length - 1)
         {
-            index = line.indexOf(":");
-            headers.set(line.substring(0,index),line.substring(index + 2));
+            if (lines[i] == "") break;
+            index = lines[i].indexOf(":");
+            headers.set(lines[i].substring(0,index),lines[i].substring(index + 2));
         }
         baseUrl = headers.get("Host");
         if (headers.exists("Cookie"))
@@ -39,6 +46,12 @@ class Request
                 index = string.indexOf("=");
                 cookies.set(string.substring(0,index),string.substring(index + 1));
             }
+        }
+        if (method == Post) 
+        {
+            length = Std.parseInt(headers.get("Content-Length"));
+            pos = 0;
+            data = Bytes.alloc(length);
         }
     }
     private function response(parent:Server,socket):Response

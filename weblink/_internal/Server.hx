@@ -27,6 +27,7 @@ class Server extends SocketServer
         {
             var stream = accept();
             var socket:Socket = cast stream;
+            var request:Request = null;
             stream.readStart(function(data:Bytes)
             {
                 if (data == null)
@@ -35,11 +36,22 @@ class Server extends SocketServer
                     stream.close();
                     return;
                 }
+                if (request != null && request.method == Post)
+                {
+                    @:privateAccess var length = request.length - request.pos < data.length ? request.length - request.pos : data.length;
+                    @:privateAccess request.data.blit(request.pos,data,0,length);
+                    @:privateAccess request.pos += data.length;
+                    @:privateAccess if (request.pos >= request.length)
+                    {
+                        complete(request,socket);
+                        request = null;
+                    }
+                    return;
+                }
                 var lines = data.toString().split("\r\n");
                 //go through lines
-                @:privateAccess var request = new Request(lines);
-                @:privateAccess var response = request.response(this,socket);
-                @:privateAccess parent.func(request,response);
+                @:privateAccess request = new Request(lines);
+                if (request.method != Post) complete(request,socket);
             });
             sockets.push(socket);
         });
@@ -51,6 +63,11 @@ class Server extends SocketServer
         });
         #end
         this.parent = parent;
+    }
+    private inline function complete(request:Request,socket:Socket)
+    {
+        @:privateAccess var response = request.response(this,socket);
+        @:privateAccess parent.func(request,response);
     }
     #if (!hl || nolibuv)
     private inline function getAccept()

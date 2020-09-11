@@ -45,9 +45,9 @@ Supported
 ====
 - [methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
     - [x] GET
-    - [ ] POST
+    - [x] POST
     - [ ] OPTIONS
-    - [ ] HEAD
+    - [x] HEAD
     - [ ] PUT
 - [encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Compression)
     - [ ] gzip
@@ -58,11 +58,11 @@ Supported
     - [ ] age
     - [ ] expires
 - extra
-    - [ ] [content type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
+    - [x] [content type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
     - [ ] [cors](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
-    - [ ] bytes
+    - [x] bytes (png image for instance)
     - [ ] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
     - [ ] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
     - [ ] ssl
     - [ ] [cert bot](https://certbot.eff.org/) easy integration
-    - [ ] serve web content (files ex: html/images/sounds)
+    - [x] serve web content (files ex: html/images/sounds)
