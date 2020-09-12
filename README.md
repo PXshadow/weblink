@@ -20,7 +20,7 @@ Features
 * Uses [libuv](https://github.com/libuv/libuv) on hashlink target, can be disabled with ```-D nolibuv```
 * Minimal and concise with express lib in mind
 * No dependencies, and easy integration
-* Extremely fast, roughly 4x faster than Fastify with big data, and 2x with small [Benchmark](https://github.com/PXshadow/weblinkBenchmark)
+* Extremely fast, roughly 4x faster than Fastify with big data, and 2x with small [Benchmark](#benchmark)
 
 
 Getting Started
@@ -35,11 +35,15 @@ Include in build.hxml
 -lib weblink
 ```
 
-# Targets 
-*require sys and threading (or coroutine support in the future)*
-* hashlink (uses libuv) **hl**
-* c++ **hxcpp**
-* neko **n**
+# Targets
+*requires sys and threading (or coroutine support in the future)*
+* hashlink (uses libuv) **hl** (very fast)
+* c++ **hxcpp** (slow)
+* neko **n** (very slow)
+
+# Benchmark
+
+[<p align="left"><img src ="benchmark.png"></p>](https://github.com/PXshadow/weblinkBenchmark)
 
 Supported
 ====
