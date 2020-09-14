@@ -53,6 +53,26 @@ class Request
             pos = 0;
             data = Bytes.alloc(length);
         }
+    } 
+    public function query():Any
+    {
+        final r = ~/(?:\?|&|;)([^=]+)=([^&|;]+)/;
+        var obj = {};
+        var init:Bool = true;
+        var string:String = path;
+        while (r.match(string))
+        {
+            if (init)
+            {
+                var pos = r.matchedPos().pos;
+                path = path.substring(0,pos);
+                init = false;
+            }
+            //0 entire, 1 name, 2 value
+            Reflect.setField(obj,r.matched(1),r.matched(2));
+            string = r.matchedRight();
+        }
+        return obj;
     }
     private function response(parent:Server,socket):Response
     {
