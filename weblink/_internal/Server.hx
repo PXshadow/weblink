@@ -10,18 +10,13 @@ class Server extends SocketServer
     var sockets:Array<Socket>;
     var parent:Weblink;
     var running:Bool = true;
-    #if (hl && !nolibuv) var loop:hl.uv.Loop; #end
+    var loop:hl.uv.Loop;
     public function new(port:Int,parent:Weblink)
     {
         sockets = [];
-        #if (hl && !nolibuv)
         loop = hl.uv.Loop.getDefault();
         super(loop);
-        #else
-        super();
-        #end
         bind(new Host("0.0.0.0"),port);
-        #if (hl && !nolibuv)
         noDelay(true);
         listen(100,function()
         {
@@ -55,13 +50,6 @@ class Server extends SocketServer
             });
             sockets.push(socket);
         });
-        #else
-        listen(100); //queue up 100 connection sockets
-        sys.thread.Thread.create(function()
-        {
-            while (running) getAccept();
-        });
-        #end
         this.parent = parent;
     }
     private inline function complete(request:Request,socket:Socket)
@@ -75,66 +63,13 @@ class Server extends SocketServer
             default: trace('Method ${request.method} Not supported yet');
         }
     }
-    #if (!hl || nolibuv)
-    private inline function getAccept()
-    {
-        try {
-            var socket:Socket = cast accept();
-            socket.set();
-            sockets.push(socket);
-        }catch(e:Dynamic)
-        {
-            if (!running) return;
-            trace("e " + e);
-        }
-    }
-    #end
     public function update()
     {
-        #if (!hl || nolibuv)
-        while (running)
-        {
-            @:privateAccess MainLoop.tick();
-            #if !(target.threaded)
-            getAccept();
-            #end
-            for (socket in sockets)
-            {
-                //existing connections run through
-                var lines:Array<String> = [];
-                while (true)
-                {
-                    try {
-                        var line = socket.readLine();
-                        lines.push(line);
-                    }catch(e:Dynamic)
-                    {
-                        if (e != haxe.io.Error.Blocked)
-                        {
-                            //trace("error " + e);
-                            lines = [];
-                            closeSocket(socket);
-                        }
-                        break;
-                    }
-                }
-                if (lines.length > 0)
-                {
-                    //go through lines
-                    @:privateAccess var request = new Request(lines);
-                    @:privateAccess var response = request.response(this,socket);
-                    //@:privateAccess parent.func(request,response);
-                }
-            }
-            Sys.sleep(1/15);
-        }
-        #else
         while (running)
         {
             @:privateAccess MainLoop.tick(); //for timers
             loop.run(NoWait);
         }
-        #end
     }
     public inline function closeSocket(socket:Socket)
     {

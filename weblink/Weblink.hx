@@ -1,6 +1,7 @@
 package weblink;
 import haxe.http.HttpMethod;
 import weblink._internal.Server;
+import weblink._internal.Mime;
 private typedef Func = (request:Request,response:Response)->Void;
 class Weblink
 {
@@ -8,6 +9,9 @@ class Weblink
     var _get:Func;
     var _post:Func;
     var _head:Func;
+    var _serve:Bool = false;
+    var _path:String;
+    var _dir:String;
     public function new()
     {
 
@@ -30,9 +34,9 @@ class Weblink
         //blocking forever
         server.update();
     }
-    public function serve(path:String,dir:String)
+    public function serve(path:String="",dir:String="")
     {
-
+        haxe.io.Mime
     }
     public function close()
     {
@@ -40,14 +44,14 @@ class Weblink
     }
     private inline function _postEvent(request:Request,response:Response)
     {
-
+        _post(request,response);
     }
     private inline function _getEvent(request:Request,response:Response)
     {
-
+        _get(request,response);
     }
     private inline function _headEvent(request:Request,response:Response)
     {
-
+        _headEvent(request,response);
     }
 }

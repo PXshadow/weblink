@@ -17,7 +17,7 @@ class Main {
 
 Features
 ====
-* Uses [libuv](https://github.com/libuv/libuv) on hashlink target, can be disabled with ```-D nolibuv```
+* Uses [libuv](https://github.com/libuv/libuv)
 * Minimal and concise with express lib in mind
 * No dependencies, and easy integration
 * Extremely fast, roughly 4x faster than Fastify with big data, and 2x with small [Benchmark](#benchmark)
@@ -36,10 +36,9 @@ Include in build.hxml
 ```
 
 # Targets
-*requires sys and threading (or coroutine support in the future)*
-* hashlink (uses libuv) **hl** (very fast)
-* c++ **hxcpp** (slow)
-* neko **n** (very slow)
+*requires libuv (asys in the future)*
+* hashlink (uses libuv)
+* more targets in the future using [asys](https://github.com/HaxeFoundation/haxe-evolution/blob/7371439061fcb30f60f21369701a5e599dfa802c/proposals/0010-asys.md)
 
 # Benchmark
 
