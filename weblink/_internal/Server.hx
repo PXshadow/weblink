@@ -67,7 +67,13 @@ class Server extends SocketServer
     private inline function complete(request:Request,socket:Socket)
     {
         @:privateAccess var response = request.response(this,socket);
-        @:privateAccess parent.func(request,response);
+        switch (request.method)
+        {
+            case Get: @:privateAccess parent._getEvent(request,response);
+            case Post: @:privateAccess parent._postEvent(request,response);
+            case Head: @:privateAccess parent._headEvent(request,response);
+            default: trace('Method ${request.method} Not supported yet');
+        }
     }
     #if (!hl || nolibuv)
     private inline function getAccept()
@@ -117,7 +123,7 @@ class Server extends SocketServer
                     //go through lines
                     @:privateAccess var request = new Request(lines);
                     @:privateAccess var response = request.response(this,socket);
-                    @:privateAccess parent.func(request,response);
+                    //@:privateAccess parent.func(request,response);
                 }
             }
             Sys.sleep(1/15);
