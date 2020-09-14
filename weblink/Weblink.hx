@@ -36,7 +36,7 @@ class Weblink
     }
     public function serve(path:String="",dir:String="")
     {
-        haxe.io.Mime
+        
     }
     public function close()
     {
