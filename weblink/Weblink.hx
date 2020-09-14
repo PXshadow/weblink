@@ -2,6 +2,7 @@ package weblink;
 import haxe.http.HttpMethod;
 import weblink._internal.Server;
 import weblink._internal.Mime;
+using haxe.io.Path;
 private typedef Func = (request:Request,response:Response)->Void;
 class Weblink
 {
@@ -36,7 +37,9 @@ class Weblink
     }
     public function serve(path:String="",dir:String="")
     {
-        
+        _path = path;
+        _dir = dir;
+        _serve = true;
     }
     public function close()
     {
@@ -49,6 +52,26 @@ class Weblink
     private inline function _getEvent(request:Request,response:Response)
     {
         _get(request,response);
+        if (_serve && response.status == OK && request.path.indexOf(_path) == 0)
+        {
+            _serveEvent(request,response);
+        }
+    }
+    private inline function _serveEvent(request:Request,response:Response)
+    {
+        var ext = request.path.extension();
+        if (ext != null)
+        {
+            var mime = weblink._internal.Mime.types.get(ext);
+            response.contentType = mime == null ? "text/plain" : mime;
+            var path = Path.join([_dir,request.path.substr(_path.length)]).normalize();
+            if (sys.FileSystem.exists(path))
+            {
+                response.sendBytes(sys.io.File.getBytes(path));
+            }else{
+                //trace('file not found $path');
+            }
+        }
     }
     private inline function _headEvent(request:Request,response:Response)
     {
