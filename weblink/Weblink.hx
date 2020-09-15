@@ -69,6 +69,7 @@ class Weblink
             {
                 if (sys.FileSystem.isDirectory(path))
                 {
+                    response.contentType = "text/html";
                     path = Path.join([path,"index.html"]);
                     if (sys.FileSystem.exists(path))
                     {
