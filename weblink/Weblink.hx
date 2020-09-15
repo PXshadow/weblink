@@ -67,7 +67,16 @@ class Weblink
             var path = Path.join([_dir,request.path.substr(_path.length)]).normalize();
             if (sys.FileSystem.exists(path))
             {
-                response.sendBytes(sys.io.File.getBytes(path));
+                if (sys.FileSystem.isDirectory(path))
+                {
+                    path = Path.join([path,"index.html"]);
+                    if (sys.FileSystem.exists(path))
+                    {
+                        response.sendBytes(sys.io.File.getBytes(path));
+                    }
+                }else{
+                    response.sendBytes(sys.io.File.getBytes(path));
+                }
             }else{
                 //trace('file not found $path');
             }
