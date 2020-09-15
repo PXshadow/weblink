@@ -33,7 +33,12 @@ class Weblink
     {
         server = new Server(port,this);
         //blocking forever
+        try {
         server.update();
+        }catch(e:Dynamic)
+        {
+            
+        }
     }
     public function serve(path:String="",dir:String="")
     {
