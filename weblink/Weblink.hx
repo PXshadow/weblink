@@ -85,6 +85,6 @@ class Weblink
     }
     private inline function _headEvent(request:Request,response:Response)
     {
-        _headEvent(request,response);
+        _head(request,response);
     }
 }
