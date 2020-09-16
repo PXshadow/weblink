@@ -56,38 +56,39 @@ class Weblink
     {
         _post(request,response);
     }
-    private inline function _getEvent(request:Request,response:Response)
+    private function _getEvent(request:Request,response:Response)
     {
-        _get(request,response);
         if (_serve && response.status == OK && request.path.indexOf(_path) == 0)
         {
-            _serveEvent(request,response);
+            if (_serveEvent(request,response)) return;
         }
+        _get(request,response);
     }
-    private inline function _serveEvent(request:Request,response:Response)
+    private inline function _serveEvent(request:Request,response:Response):Bool
     {
         var ext = request.path.extension();
-        if (ext != null)
+        var mime = weblink._internal.Mime.types.get(ext);
+        response.contentType = mime == null ? "text/plain" : mime;
+        var path = Path.join([_dir,request.path.substr(_path.length)]).normalize();
+        if (sys.FileSystem.exists(path))
         {
-            var mime = weblink._internal.Mime.types.get(ext);
-            response.contentType = mime == null ? "text/plain" : mime;
-            var path = Path.join([_dir,request.path.substr(_path.length)]).normalize();
-            if (sys.FileSystem.exists(path))
+            if (sys.FileSystem.isDirectory(path))
             {
-                if (sys.FileSystem.isDirectory(path))
+                response.contentType = "text/html";
+                path = Path.join([path,"index.html"]);
+                if (sys.FileSystem.exists(path))
                 {
-                    response.contentType = "text/html";
-                    path = Path.join([path,"index.html"]);
-                    if (sys.FileSystem.exists(path))
-                    {
-                        response.sendBytes(sys.io.File.getBytes(path));
-                    }
-                }else{
                     response.sendBytes(sys.io.File.getBytes(path));
+                    return true;
                 }
+                return false;
             }else{
-                //trace('file not found $path');
+                response.sendBytes(sys.io.File.getBytes(path));
+                return true;
             }
+        }else{
+            //trace('file not found $path');
+            return false;
         }
     }
     private inline function _headEvent(request:Request,response:Response)
