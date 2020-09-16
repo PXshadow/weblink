@@ -37,7 +37,9 @@ class Weblink
         server.update();
         }catch(e:Dynamic)
         {
-            
+            #if weblink_log
+            trace(e); //main issue being Acess Violation
+            #end
         }
     }
     public function serve(path:String="",dir:String="")
