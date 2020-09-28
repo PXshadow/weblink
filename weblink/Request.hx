@@ -51,13 +51,13 @@ class Request
         if (method == Post) 
         {
             length = Std.parseInt(headers.get("Content-Length"));
+            data = Bytes.alloc(length);
             pos = 0;
             if (lines.length > 0)
             {
-                data = Bytes.ofString(lines.join("\r\n"));
-                pos = data.length;
-            }else{
-                data = Bytes.alloc(length);
+                var bytes = Bytes.ofString(lines.join("\r\n"));
+                data.blit(0,bytes,0,bytes.length);
+                pos = bytes.length;
             }
         }
     }

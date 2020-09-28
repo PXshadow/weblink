@@ -50,6 +50,7 @@ class Server extends SocketServer
                 if (request.method != Post) 
                 {
                     complete(request,socket);
+                    request = null;
                 }else{
                     @:privateAccess if (request.pos >= request.length)
                     {
