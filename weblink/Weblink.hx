@@ -6,7 +6,7 @@ using haxe.io.Path;
 private typedef Func = (request:Request,response:Response)->Void;
 class Weblink
 {
-    var server:Server;
+    public var server:Server;
     var _get:Func;
     var _post:Func;
     var _head:Func;
@@ -29,18 +29,10 @@ class Weblink
     {
         this._head = func;
     }
-    public function listen(port:Int)
+    public function listen(port:Int,blocking:Bool=true)
     {
         server = new Server(port,this);
-        //blocking forever
-        //try {
-        server.update();
-        /*}catch(e:Dynamic)
-        {
-            #if weblink_log
-            trace(e); //main issue being Acess Violation
-            #end
-        }*/
+        server.update(blocking);
     }
     public function serve(path:String="",dir:String="")
     {
@@ -54,7 +46,7 @@ class Weblink
     }
     private inline function _postEvent(request:Request,response:Response)
     {
-        _post(request,response);
+        if (_post != null) _post(request,response);
     }
     private function _getEvent(request:Request,response:Response)
     {
@@ -62,7 +54,7 @@ class Weblink
         {
             if (_serveEvent(request,response)) return;
         }
-        _get(request,response);
+        if (_get != null) _get(request,response);
     }
     private inline function _serveEvent(request:Request,response:Response):Bool
     {
@@ -93,6 +85,6 @@ class Weblink
     }
     private inline function _headEvent(request:Request,response:Response)
     {
-        _head(request,response);
+        if (_head != null) _head(request,response);
     }
 }

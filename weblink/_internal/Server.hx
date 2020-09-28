@@ -1,4 +1,5 @@
 package weblink._internal;
+import hl.uv.Loop.LoopRunMode;
 import haxe.MainLoop;
 import haxe.io.Bytes;
 import haxe.http.HttpMethod;
@@ -63,13 +64,12 @@ class Server extends SocketServer
             default: trace('Method ${request.method} Not supported yet');
         }
     }
-    public function update()
+    public function update(blocking:Bool=true)
     {
-        while (running)
-        {
+        do {
             @:privateAccess MainLoop.tick(); //for timers
             loop.run(NoWait);
-        }
+        } while (running && blocking);
     }
     public inline function closeSocket(socket:Socket)
     {
