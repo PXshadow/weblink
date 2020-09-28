@@ -33,14 +33,14 @@ class Weblink
     {
         server = new Server(port,this);
         //blocking forever
-        try {
+        //try {
         server.update();
-        }catch(e:Dynamic)
+        /*}catch(e:Dynamic)
         {
             #if weblink_log
             trace(e); //main issue being Acess Violation
             #end
-        }
+        }*/
     }
     public function serve(path:String="",dir:String="")
     {

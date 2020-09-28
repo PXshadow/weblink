@@ -20,10 +20,7 @@ class Request
     {
         headers = new StringMap<String>();
         data = null;
-        read(lines);
-    }
-    private inline function read(lines:Array<String>)
-    {
+        
         var index = 0;
         var first = lines[0];
         var index = first.indexOf("/");
@@ -53,7 +50,11 @@ class Request
             pos = 0;
             data = Bytes.alloc(length);
         }
-    } 
+    }
+    /*private inline function read(lines:Array<String>)
+    {
+        
+    }*/
     public function query():Any
     {
         final r = ~/(?:\?|&|;)([^=]+)=([^&|;]+)/;

@@ -66,6 +66,7 @@ Supported
     - [x] bytes (png image for instance)
     - [ ] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
     - [ ] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
-    - [ ] ssl
+    - [ ] ssl (haxe 4.2) 
     - [ ] [cert bot](https://certbot.eff.org/) easy integration
-    - [x] serve web content (files ex: html/images/sounds)
+    - [ ] serve web content (files ex: html/images/sounds)
+    - [ ] connection public ip (haxe 4.2)
