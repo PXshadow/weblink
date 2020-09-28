@@ -28,7 +28,11 @@ class Request
         method = first.substring(0,index - 1);
         for (i in 0...lines.length - 1)
         {
-            if (lines[i] == "") break;
+            if (lines[i] == "") 
+            {
+                lines = lines.slice(i + 1);
+                break;
+            }
             index = lines[i].indexOf(":");
             headers.set(lines[i].substring(0,index),lines[i].substring(index + 2));
         }
@@ -48,7 +52,13 @@ class Request
         {
             length = Std.parseInt(headers.get("Content-Length"));
             pos = 0;
-            data = Bytes.alloc(length);
+            if (lines.length > 0)
+            {
+                data = Bytes.ofString(lines.join("\r\n"));
+                pos = data.length;
+            }else{
+                data = Bytes.alloc(length);
+            }
         }
     }
     /*private inline function read(lines:Array<String>)

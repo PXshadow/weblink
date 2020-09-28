@@ -8,13 +8,13 @@ import weblink._internal.Socket;
 
 class Server extends SocketServer
 {
-    var sockets:Array<Socket>;
+    //var sockets:Array<Socket>;
     var parent:Weblink;
     var running:Bool = true;
     var loop:hl.uv.Loop;
     public function new(port:Int,parent:Weblink)
     {
-        sockets = [];
+        //sockets = [];
         loop = hl.uv.Loop.getDefault();
         super(loop);
         bind(new Host("0.0.0.0"),port);
@@ -28,7 +28,7 @@ class Server extends SocketServer
             {
                 if (data == null)
                 {
-                    sockets.remove(socket);
+                    //sockets.remove(socket);
                     stream.close();
                     return;
                 }
@@ -47,9 +47,18 @@ class Server extends SocketServer
                 var lines = data.toString().split("\r\n");
                 //go through lines
                 @:privateAccess request = new Request(lines);
-                if (request.method != Post) complete(request,socket);
+                if (request.method != Post) 
+                {
+                    complete(request,socket);
+                }else{
+                    @:privateAccess if (request.pos >= request.length)
+                    {
+                         complete(request,socket);
+                         request = null;
+                    }
+                }
             });
-            sockets.push(socket);
+            //sockets.push(socket);
         });
         this.parent = parent;
     }
@@ -73,17 +82,17 @@ class Server extends SocketServer
     }
     public inline function closeSocket(socket:Socket)
     {
-        sockets.remove(socket);
+        //sockets.remove(socket);
         socket.close();
     }
     override function close(#if (hl && !nolibuv) ?callb:() -> Void #end) 
     {
         //remove sockets array as well
-        for (socket in sockets)
+        /*for (socket in sockets)
         {
             socket.close();
-        }
-        sockets = [];
+        }*/
+        //sockets = [];
         running = false;
         #if (hl && !nolibuv)
         loop.stop();
