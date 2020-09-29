@@ -64,9 +64,9 @@ Supported
     - [x] [content type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
     - [ ] [cors](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
     - [x] bytes (png image for instance)
-    - [ ] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
+    - [x] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
     - [ ] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
     - [ ] ssl (haxe 4.2) 
     - [ ] [cert bot](https://certbot.eff.org/) easy integration
-    - [ ] serve web content (files ex: html/images/sounds)
+    - [x] serve web content (files ex: html/images/sounds)
     - [ ] connection public ip (haxe 4.2)

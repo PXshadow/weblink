@@ -5,6 +5,7 @@ import haxe.io.Bytes;
 import haxe.http.HttpStatus;
 import weblink._internal.Socket;
 import weblink._internal.Server;
+import weblink._internal.HttpStatusMessage;
 
 class Response
 {
@@ -27,6 +28,15 @@ class Response
         socket.writeBytes(bytes);
         end();
     }
+    public inline function redirect(path:String)
+    {
+        status = MovedPermanently;
+        headers = new List<Header>();
+        var string = initLine();
+        string += 'Location: $path\r\n\r\n';
+        socket.writeString(string);
+        end();
+    }
     public inline function send(data:String)
     {
         var buff = sendHeaders(data.length);
@@ -43,14 +53,20 @@ class Response
         socket = null;
         server = null;
     }
+    private inline function initLine():String
+    {
+        return 'HTTP/1.1 $status ${HttpStatusMessage.fromCode(status)}\r\n';
+    }
     public inline function sendHeaders(length:Int):StringBuf
     {
         var string = new StringBuf();
-        string.add('HTTP/1.1 $status OK\r\n' +
+        string.add(
+        initLine() +
         //'Acess-Control-Allow-Origin: *\r\n' +
         'Connection: ${close ? "close" : "keep-alive"}\r\n' +
         'Content-type: $contentType\r\n' +
-        'Content-length: $length\r\n');
+        'Content-length: $length\r\n'
+        );
         if (headers != null) 
         {
             for (header in headers)
