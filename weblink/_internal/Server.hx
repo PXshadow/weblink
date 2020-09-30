@@ -34,6 +34,16 @@ class Server extends SocketServer
                 }
                 if (request != null && request.method == Post)
                 {
+                    if (request.chunked)
+                    {
+                        @:privateAccess request.chunk(data.toString());
+                        @:privateAccess if (request.chunkSize == 0)
+                        {
+                            complete(request,socket);
+                            request = null;
+                        }
+                        return;
+                    }
                     @:privateAccess var length = request.length - request.pos < data.length ? request.length - request.pos : data.length;
                     @:privateAccess request.data.blit(request.pos,data,0,length);
                     @:privateAccess request.pos += data.length;

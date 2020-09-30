@@ -15,12 +15,17 @@ class Request
     public var method:HttpMethod;
     public var data:Bytes;
     public var length:Int;
+    public var chunked:Bool = false;
+    var chunkSize:Null<Int>;
+    public var encoding:Array<String> = [];
     var pos:Int;
     private function new(lines:Array<String>)
     {
         headers = new StringMap<String>();
         data = null;
-        
+        //for (line in lines)
+        //    Sys.println(line);
+        if (lines.length == 0) return;
         var index = 0;
         var first = lines[0];
         var index = first.indexOf("/");
@@ -48,23 +53,79 @@ class Request
                 cookies.set(string.substring(0,index),string.substring(index + 1));
             }
         }
+        if (headers.exists("Transfer-Encoding"))
+        {
+            encoding = headers.get("Transfer-Encoding").split(",");
+        }
         if (method == Post) 
         {
+            if (encoding.indexOf("chunked") > -1)
+            {
+                data = Bytes.alloc(0);
+                pos = 0;
+                length = 0;
+                chunkSize = null;
+                chunked = true;
+                chunk(lines.join("\r\n"));
+                return;
+            }
+            if (encoding.indexOf("gzip") > -1)
+            {
+                trace("gzip not supported yet");
+            }
             length = Std.parseInt(headers.get("Content-Length"));
             data = Bytes.alloc(length);
             pos = 0;
-            if (lines.length > 0)
+            //inital data
+            if (lines.length > 0 && length > 0)
             {
                 var bytes = Bytes.ofString(lines.join("\r\n"));
-                data.blit(0,bytes,0,bytes.length);
-                pos = bytes.length;
+                var length = length < bytes.length ? length : bytes.length;
+                data.blit(0,bytes,0,length);
+                pos = data.length;
             }
         }
     }
-    /*private inline function read(lines:Array<String>)
+    function chunk(string:String)
     {
-        
-    }*/
+        var index = 0;
+        var buffer = new StringBuf();
+        pos = 0;
+        while (chunkSize != 0)
+        {
+            if (chunkSize > 0)
+            {
+                var s = string.substr(pos,chunkSize);
+                buffer.add(s);
+                pos += s.length;
+                if (s.length < chunkSize)
+                    break; //append later
+                pos += 2;
+            }
+            index = string.indexOf("\r\n",pos);
+            if (index == -1)
+            {
+                //error
+                chunkSize = 0;
+                break;
+            }
+            var num = string.substring(pos,index);
+            pos = index + 2;
+            chunkSize = Std.parseInt(num);
+            if (chunkSize == null)
+                chunkSize = Std.parseInt('0x$num');
+            if (chunkSize == null)
+                chunkSize = 0;
+        }
+        if (chunkSize == 0)
+            chunked = false;
+        var bytes = Bytes.ofString(buffer.toString());
+        length = data.length + bytes.length;
+        var tmp =  Bytes.alloc(length);
+        tmp.blit(0,data,0,data.length);
+        tmp.blit(data.length,bytes,0,bytes.length);
+        data = tmp;
+    }
     public function query():Any
     {
         final r = ~/(?:\?|&|;)([^=]+)=([^&|;]+)/;
