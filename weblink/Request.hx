@@ -59,6 +59,7 @@ class Request
         }
         if (method == Post) 
         {
+            chunked = false;
             if (encoding.indexOf("chunked") > -1)
             {
                 data = Bytes.alloc(0);
@@ -82,7 +83,7 @@ class Request
                 var bytes = Bytes.ofString(lines.join("\r\n"));
                 var length = length < bytes.length ? length : bytes.length;
                 data.blit(0,bytes,0,length);
-                pos = data.length;
+                pos = bytes.length;
             }
         }
     }

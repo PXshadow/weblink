@@ -22,6 +22,7 @@ class Chunk
             "0\r\n" + 
             "\r\n"
         );
+        trace("result " + request.data.toString());
     }
     static var chunkSize:Null<Int> = null;
     static var pos = 0;

@@ -81,7 +81,7 @@ class Server extends SocketServer
             case Get: @:privateAccess parent._getEvent(request,response);
             case Post: @:privateAccess parent._postEvent(request,response);
             case Head: @:privateAccess parent._headEvent(request,response);
-            default: trace('Method ${request.method} Not supported yet');
+            default: trace('Request method: ${request.method} Not supported yet');
         }
     }
     public function update(blocking:Bool=true)
