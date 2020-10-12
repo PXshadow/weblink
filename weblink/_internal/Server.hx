@@ -24,6 +24,7 @@ class Server extends SocketServer
             var stream = accept();
             var socket:Socket = cast stream;
             var request:Request = null;
+            var postRequestDone:Bool = false;
             stream.readStart(function(data:Bytes)
             {
                 if (data == null)
@@ -32,7 +33,7 @@ class Server extends SocketServer
                     stream.close();
                     return;
                 }
-                if (request != null && request.method == Post)
+                if (!postRequestDone)
                 {
                     if (request.chunked)
                     {
@@ -40,7 +41,7 @@ class Server extends SocketServer
                         @:privateAccess if (request.chunkSize == 0)
                         {
                             complete(request,socket);
-                            request = null;
+                            postRequestDone = true;
                         }
                         return;
                     }
@@ -50,22 +51,23 @@ class Server extends SocketServer
                     @:privateAccess if (request.pos >= request.length)
                     {
                         complete(request,socket);
-                        request = null;
+                        postRequestDone = true;
                     }
                     return;
                 }
                 var lines = data.toString().split("\r\n");
                 //go through lines
                 @:privateAccess request = new Request(lines);
-                if (request.method != Post) 
+                postRequestDone = request.method != Post;
+                if (!postRequestDone) 
                 {
                     complete(request,socket);
-                    request = null;
+                    postRequestDone = true;
                 }else{
                     @:privateAccess if (request.pos >= request.length)
                     {
                          complete(request,socket);
-                         request = null;
+                         postRequestDone = true;
                     }
                 }
             });

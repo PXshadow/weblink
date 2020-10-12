@@ -13,6 +13,7 @@ class Weblink
     var _serve:Bool = false;
     var _path:String;
     var _dir:String;
+    var _cors:String = "*";
     public function new()
     {
 
@@ -34,8 +35,9 @@ class Weblink
         server = new Server(port,this);
         server.update(blocking);
     }
-    public function serve(path:String="",dir:String="")
+    public function serve(path:String="",dir:String="",cors:String="*")
     {
+        _cors = cors;
         _path = path;
         _dir = dir;
         _serve = true;
@@ -60,6 +62,9 @@ class Weblink
     {
         var ext = request.path.extension();
         var mime = weblink._internal.Mime.types.get(ext);
+        response.headers = new List<Header>();
+        if (_cors.length > 0)
+            response.headers.add({key: "Access-Control-Allow-Origin",value: _cors});
         response.contentType = mime == null ? "text/plain" : mime;
         var path = Path.join([_dir,request.path.substr(_path.length)]).normalize();
         if (sys.FileSystem.exists(path))
