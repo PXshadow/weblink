@@ -24,7 +24,7 @@ class Server extends SocketServer
             var stream = accept();
             var socket:Socket = cast stream;
             var request:Request = null;
-            var postRequestDone:Bool = false;
+            var postRequestDone:Bool = true;
             stream.readStart(function(data:Bytes)
             {
                 if (data == null)
