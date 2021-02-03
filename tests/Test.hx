@@ -1,10 +1,8 @@
 package;
 
-class Test
-{
-    public static function main()
-    {
-       Request.main();
-       Chunk.main();
-    }
+class Test {
+	public static function main() {
+		Request.main();
+		Chunk.main();
+	}
 }

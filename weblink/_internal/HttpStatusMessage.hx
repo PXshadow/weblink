@@ -1,11 +1,9 @@
 package weblink._internal;
 
-class HttpStatusMessage
-{
-    public static function fromCode(code:Int):String
-    {
-        //https://github.com/kevinresol/http-status/blob/master/src/httpstatus/HttpStatusMessage.hx
-        return switch code {
+class HttpStatusMessage {
+	public static function fromCode(code:Int):String {
+		// https://github.com/kevinresol/http-status/blob/master/src/httpstatus/HttpStatusMessage.hx
+		return switch code {
 			case 100: 'Continue';
 			case 101: 'Switching Protocols';
 			case 102: 'Processing';
@@ -73,5 +71,5 @@ class HttpStatusMessage
 			case 511: 'Network Authentication Required';
 			default: 'Unknown Status';
 		}
-    }
+	}
 }

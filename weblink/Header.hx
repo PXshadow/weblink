@@ -1,2 +1,3 @@
 package weblink;
-typedef Header = {key:String,value:String}
+
+typedef Header = {key:String, value:String}
