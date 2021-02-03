@@ -24,52 +24,48 @@ class Server extends SocketServer
             var stream = accept();
             var socket:Socket = cast stream;
             var request:Request = null;
-            var postRequestDone:Bool = true;
-            stream.readStart(function(data:Bytes)
-            {
-                if (data == null)
-                {
+            var done:Bool = false;
+            stream.readStart(function(data:Bytes) @:privateAccess {
+                if (done || data == null) {
                     //sockets.remove(socket);
                     stream.close();
                     return;
                 }
-                if (!postRequestDone)
-                {
-                    if (request.chunked)
-                    {
-                        @:privateAccess request.chunk(data.toString());
-                        @:privateAccess if (request.chunkSize == 0)
-                        {
-                            complete(request,socket);
-                            postRequestDone = true;
-                        }
-                        return;
-                    }
-                    @:privateAccess var length = request.length - request.pos < data.length ? request.length - request.pos : data.length;
-                    @:privateAccess request.data.blit(request.pos,data,0,length);
-                    @:privateAccess request.pos += data.length;
-                    @:privateAccess if (request.pos >= request.length)
-                    {
-                        complete(request,socket);
-                        postRequestDone = true;
-                    }
-                    return;
-                }
-                var lines = data.toString().split("\r\n");
-                //go through lines
-                @:privateAccess request = new Request(lines);
-                postRequestDone = request.method != Post;
-                if (!postRequestDone) 
-                {
-                    complete(request,socket);
-                    postRequestDone = true;
-                }else{
-                    @:privateAccess if (request.pos >= request.length)
-                    {
-                         complete(request,socket);
-                         postRequestDone = true;
-                    }
-                }
+
+				if (request == null) {
+					var lines = data.toString().split("\r\n");
+					request = new Request(lines);
+
+					if (request.pos >= request.length) {
+						done = true;
+						complete(request,socket);
+						return;
+					}
+				} else if (!done) {
+					var length = request.length - request.pos < data.length ? request.length - request.pos : data.length;
+					request.data.blit(request.pos,data,0,length);
+					request.pos += length;
+
+					if (request.pos >= request.length) {
+						done = true;
+						complete(request,socket);
+						return;
+					}
+				}
+
+				if (request.chunked) {
+					request.chunk(data.toString());
+					if (request.chunkSize == 0) {
+						done = true;
+						complete(request,socket);
+						return;
+					}
+				}
+
+				if (request.method != Post) {
+					done = true;
+					complete(request,socket);
+				}
             });
             //sockets.push(socket);
         });
@@ -98,7 +94,7 @@ class Server extends SocketServer
         //sockets.remove(socket);
         socket.close();
     }
-    override function close(#if (hl && !nolibuv) ?callb:() -> Void #end) 
+    override function close(#if (hl && !nolibuv) ?callb:() -> Void #end)
     {
         //remove sockets array as well
         /*for (socket in sockets)
