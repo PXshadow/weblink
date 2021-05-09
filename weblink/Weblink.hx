@@ -13,6 +13,7 @@ class Weblink {
 
 	var _get:Func;
 	var _post:Func;
+	var _put:Func;
 	var _head:Func;
 	var _serve:Bool = false;
 	var _path:String;
@@ -27,6 +28,10 @@ class Weblink {
 
 	public function post(func:Func) {
 		this._post = func;
+	}
+
+	public function put(func:Func) {
+		this._put = func;
 	}
 
 	public function head(func:Func) {
@@ -52,6 +57,11 @@ class Weblink {
 	private inline function _postEvent(request:Request, response:Response) {
 		if (_post != null)
 			_post(request, response);
+	}
+
+	private inline function _putEvent(request:Request, response:Response) {
+		if (_put != null)
+			_put(request, response);
 	}
 
 	private function _getEvent(request:Request, response:Response) {

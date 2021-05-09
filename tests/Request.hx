@@ -13,6 +13,10 @@ class Request {
 			trace("POST DATA: " + request.data);
 			response.send('HELLO POST WORLD: ${request.data} ' + Date.now());
 		});
+		app.put(function(request, response) {
+			trace("PUT DATA: " + request.data);
+			response.send('HELLO PUT WORLD: ${request.data} ' + Date.now());
+		});
 		Timer.delay(function() {
 			trace("START!");
 			#if (target.threaded)
@@ -20,15 +24,16 @@ class Request {
 				#if http
 				// var stamp = Timer.stamp();
 				var http = new Http("localhost:2000");
-				var post:Bool = false;
+				var firstGet:Bool = true;
 				http.onData = function(text:String) {
-					trace('${post ? "1" : "0"}: data: $text');
+					trace('${firstGet ? "0" : "1"}: data: $text');
 					// trace('time ${Timer.stamp() - stamp}');
-					if (post)
-						return;
-					post = true;
-					http.setPostData("NEW POST DATA HTTP");
-					http.request(true);
+					if(firstGet) {
+						// do a POST on the first GET response
+						firstGet = false;
+						http.setPostData("NEW POST DATA HTTP");
+						http.request(true);
+					}
 				}
 				http.onError = function(error:String) {
 					trace("error: " + error);
@@ -41,6 +46,8 @@ class Request {
 				trace("2: " + curl.stdout.readLine());
 				var curl = new Process('curl --data "NEW POST DATA" localhost:2000');
 				trace("3: " + curl.stdout.readLine());
+				var curl = new Process('curl -X PUT --data "NEW PUT DATA" localhost:2000');
+				trace("4: " + curl.stdout.readLine());
 				#end
 			});
 			#end

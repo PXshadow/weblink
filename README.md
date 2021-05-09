@@ -51,7 +51,7 @@ Supported
     - [x] POST
     - [ ] OPTIONS
     - [x] HEAD
-    - [ ] PUT
+    - [x] PUT
 - [encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Compression)
     - [ ] gzip
     - [ ] compress
