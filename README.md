@@ -70,3 +70,45 @@ Supported
     - [ ] [cert bot](https://certbot.eff.org/) easy integration
     - [x] serve web content (files ex: html/images/sounds)
     - [ ] connection public ip (haxe 4.2)
+
+# Contributing
+
+1. Fork
+2. Clone and setup
+3. Configure VSCode :
+
+    Add that in .vscode/launch.json : 
+    
+    ```
+    {
+        // Use IntelliSense to learn about possible attributes.
+        // Hover to view descriptions of existing attributes.
+        // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "HashLink (launch)",
+                "request": "launch",
+                "type": "hl",
+                "cwd": "${workspaceFolder}",
+                "preLaunchTask": {
+                    "type": "haxe",
+                    "args": "active configuration"
+                }
+            },
+            {
+                "name": "HashLink (attach)",
+                "request": "attach",
+                "port": 6112,
+                "type": "hl",
+                "cwd": "${workspaceFolder}",
+                "preLaunchTask": {
+                    "type": "haxe",
+                    "args": "active configuration"
+                }
+            }
+        ]
+    }
+    ```
+4. Develop (and press F5 to launch hashlink)
+5. Pull request
