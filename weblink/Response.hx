@@ -19,7 +19,7 @@ class Response {
 	private function new(socket:Socket, server:Server) {
 		this.socket = socket;
 		this.server = server;
-		contentType = "text/text";
+		contentType = "text/html";
 		status = OK;
 	}
 
