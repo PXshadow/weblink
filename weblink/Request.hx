@@ -56,7 +56,7 @@ class Request {
 		if (headers.exists("Transfer-Encoding")) {
 			encoding = headers.get("Transfer-Encoding").split(",");
 		}
-		if (method == Post) {
+		if (method == Post || method == Put) {
 			chunked = false;
 			if (encoding.indexOf("chunked") > -1) {
 				data = Bytes.alloc(0);

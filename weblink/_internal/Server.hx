@@ -61,7 +61,7 @@ class Server extends SocketServer {
 					}
 				}
 
-				if (request.method != Post) {
+				if (request.method != Post && request.method != Put) {
 					done = true;
 					complete(request, socket);
 				}
@@ -78,6 +78,8 @@ class Server extends SocketServer {
 				@:privateAccess parent._getEvent(request, response);
 			case Post:
 				@:privateAccess parent._postEvent(request, response);
+			case Put:
+				@:privateAccess parent._putEvent(request, response);
 			case Head:
 				@:privateAccess parent._headEvent(request, response);
 			default:
