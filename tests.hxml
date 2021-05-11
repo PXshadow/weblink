@@ -1,6 +1,3 @@
 -cp tests
 -main Test
--D http
--D curl
---each
 -hl test.hl

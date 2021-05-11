@@ -1,5 +1,6 @@
 package weblink._internal;
 
+import hl.uv.Stream;
 import hl.uv.Loop.LoopRunMode;
 import haxe.MainLoop;
 import haxe.io.Bytes;
@@ -10,7 +11,8 @@ import weblink._internal.Socket;
 class Server extends SocketServer {
 	// var sockets:Array<Socket>;
 	var parent:Weblink;
-	var running:Bool = true;
+	var stream:Stream;
+	public var running:Bool = true;
 	var loop:hl.uv.Loop;
 
 	public function new(port:Int, parent:Weblink) {
@@ -20,7 +22,7 @@ class Server extends SocketServer {
 		bind(new Host("0.0.0.0"), port);
 		noDelay(true);
 		listen(100, function() {
-			var stream = accept();
+			stream = accept();
 			var socket:Socket = cast stream;
 			var request:Request = null;
 			var done:Bool = false;
@@ -98,18 +100,9 @@ class Server extends SocketServer {
 		// sockets.remove(socket);
 		socket.close();
 	}
-
-	override function close(#if (hl && !nolibuv) ?callb:() -> Void #end) {
-		// remove sockets array as well
-		/*for (socket in sockets)
-			{
-				socket.close();
-		}*/
-		// sockets = [];
-		running = false;
-		#if (hl && !nolibuv)
+	override function close(?callb:() -> Void) {
+		super.close(callb);
 		loop.stop();
-		#end
-		super.close();
+		running = false;
 	}
 }
