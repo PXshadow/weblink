@@ -16,7 +16,7 @@ jobs:
           node-version: '14'
       - uses: pxshadow/setup-hashlink@v1.0.0 #hashlink
 
-       - name: install lix
+      - name: install lix
         run: npm i lix -g
       - name: run lix
         run: npx lix download
