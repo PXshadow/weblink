@@ -1,3 +1,7 @@
+<p align="center">
+    <img alt="weblink" src="https://raw.githubusercontent.com/PXshadow/weblink/master/weblink.png" height="448px" />
+</p>
+
 WebLink
 ======
 Linking [Hashlink](https://github.com/HaxeFoundation/hashlink) and other [targets](#targets) to the role of a webserver.
