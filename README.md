@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="weblink" src="https://raw.githubusercontent.com/PXshadow/weblink/master/weblink.png" height="448px" />
+    <img alt="weblink" src="weblink.svg" height="180px" align="center" />
 </p>
 
 WebLink
