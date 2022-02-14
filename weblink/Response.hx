@@ -3,6 +3,7 @@ package weblink;
 import haxe.ds.Either;
 import haxe.io.Bytes;
 import haxe.http.HttpStatus;
+import weblink.Cookie;
 import weblink._internal.Socket;
 import weblink._internal.Server;
 import weblink._internal.HttpStatusMessage;
@@ -11,6 +12,8 @@ class Response {
 	public var status:HttpStatus;
 	public var contentType:String;
 	public var headers:List<Header>;
+	
+	public var cookies:List<Cookie>;
 
 	var socket:Socket;
 	var server:Server;
@@ -64,6 +67,11 @@ class Response {
 			'Connection: ${close ? "close" : "keep-alive"}\r\n'
 			+ 'Content-type: $contentType\r\n'
 			+ 'Content-length: $length\r\n');
+		if (cookies != null) {
+			for (cookie in cookies) {
+				string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
+			}
+		}
 		if (headers != null) {
 			for (header in headers) {
 				string.add(header.key + ": " + header.value + "\r\n");
