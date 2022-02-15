@@ -8,7 +8,6 @@ enum SameSite {
 
 @:keep
 class Cookie {
-    @:notNull
     public var id:String;
     public var value:String;
     public var sameSite:Null<SameSite>;
@@ -17,7 +16,6 @@ class Cookie {
     public var domain:Null<String>;
     public var expiry:Null<Date>;
     public var maxAge:Null<Int>;
-
 
     public var path:Null<String>;
     
