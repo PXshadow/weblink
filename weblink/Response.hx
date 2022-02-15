@@ -12,9 +12,7 @@ class Response {
 	public var status:HttpStatus;
 	public var contentType:String;
 	public var headers:List<Header>;
-	
-	public var cookies:List<Cookie>;
-
+	public var cookies:List<Cookie> = new List<Cookie>();
 	var socket:Socket;
 	var server:Server;
 	var close:Bool = true;
@@ -67,11 +65,9 @@ class Response {
 			'Connection: ${close ? "close" : "keep-alive"}\r\n'
 			+ 'Content-type: $contentType\r\n'
 			+ 'Content-length: $length\r\n');
-		if (cookies != null) {
-			for (cookie in cookies) {
-				string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
-			}
-		}
+		for (cookie in cookies) {
+			string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
+		} 
 		if (headers != null) {
 			for (header in headers) {
 				string.add(header.key + ": " + header.value + "\r\n");
