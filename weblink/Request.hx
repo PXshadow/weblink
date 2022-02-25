@@ -6,7 +6,7 @@ import haxe.ds.StringMap;
 import weblink._internal.Server;
 
 class Request {
-	public var cookies:StringMap<String>;
+	public var cookies:List<Cookie>;
 	public var path:String;
 	public var ip:String;
 	public var baseUrl:String;
@@ -44,15 +44,20 @@ class Request {
 			headers.set(lines[i].substring(0, index), lines[i].substring(index + 2));
 		}
 		baseUrl = headers.get("Host");
+
 		if (headers.exists("Cookie")) {
-			cookies = new StringMap<String>();
+			cookies = new List<Cookie>();
 			var string = headers.get("Cookie");
+
 			for (sub in string.split(";")) {
-				string = StringTools.trim(sub);
-				index = string.indexOf("=");
-				cookies.set(string.substring(0, index), string.substring(index + 1));
+				string = StringTools.trim(sub);	
+				//Split into the component Keyvalue pair for the cookie.
+				var keyVal = string.split("=");
+				cookies.add(new Cookie(keyVal[0], keyVal[1]));
 			}
 		}
+
+
 		if (headers.exists("Transfer-Encoding")) {
 			encoding = headers.get("Transfer-Encoding").split(",");
 		}

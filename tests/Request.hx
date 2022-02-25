@@ -33,6 +33,5 @@ class Request {
 			Sys.sleep(0.2);
 		}
 		trace("done");
-		Sys.exit(0);
 	}
 }
