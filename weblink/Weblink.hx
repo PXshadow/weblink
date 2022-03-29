@@ -1,8 +1,8 @@
 package weblink;
 
 import haxe.http.HttpMethod;
-import weblink._internal.Server;
 import weblink._internal.Mime;
+import weblink._internal.Server;
 
 using haxe.io.Path;
 
@@ -74,6 +74,8 @@ class Weblink {
 	}
 
 	private inline function _serveEvent(request:Request, response:Response):Bool {
+		if (request.path.charAt(0) == "/")
+			request.path = request.path.substr(1);
 		var ext = request.path.extension();
 		var mime = weblink._internal.Mime.types.get(ext);
 		response.headers = new List<Header>();
@@ -81,6 +83,8 @@ class Weblink {
 			response.headers.add({key: "Access-Control-Allow-Origin", value: _cors});
 		response.contentType = mime == null ? "text/plain" : mime;
 		var path = Path.join([_dir, request.path.substr(_path.length)]).normalize();
+		if (path == "")
+			path = ".";
 		if (sys.FileSystem.exists(path)) {
 			if (sys.FileSystem.isDirectory(path)) {
 				response.contentType = "text/html";
@@ -89,13 +93,14 @@ class Weblink {
 					response.sendBytes(sys.io.File.getBytes(path));
 					return true;
 				}
+				trace('file not found $path');
 				return false;
 			} else {
 				response.sendBytes(sys.io.File.getBytes(path));
 				return true;
 			}
 		} else {
-			// trace('file not found $path');
+			trace('file/folder not found $path');
 			return false;
 		}
 	}
