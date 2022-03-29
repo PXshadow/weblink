@@ -1,8 +1,8 @@
 package weblink;
 
-import haxe.io.Bytes;
-import haxe.http.HttpMethod;
 import haxe.ds.StringMap;
+import haxe.http.HttpMethod;
+import haxe.io.Bytes;
 import weblink._internal.Server;
 
 class Request {
@@ -34,7 +34,7 @@ class Request {
 		var first = lines[0];
 		var index = first.indexOf("/");
 		path = first.substring(index, first.indexOf(" ", index + 1));
-		method = first.substring(0, index - 1);
+		method = first.substring(0, index - 1).toUpperCase();
 		for (i in 0...lines.length - 1) {
 			if (lines[i] == "") {
 				lines = lines.slice(i + 1);
@@ -50,13 +50,12 @@ class Request {
 			var string = headers.get("Cookie");
 
 			for (sub in string.split(";")) {
-				string = StringTools.trim(sub);	
-				//Split into the component Keyvalue pair for the cookie.
+				string = StringTools.trim(sub);
+				// Split into the component Keyvalue pair for the cookie.
 				var keyVal = string.split("=");
 				cookies.add(new Cookie(keyVal[0], keyVal[1]));
 			}
 		}
-
 
 		if (headers.exists("Transfer-Encoding")) {
 			encoding = headers.get("Transfer-Encoding").split(",");
