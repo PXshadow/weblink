@@ -1,18 +1,21 @@
 package weblink;
 
-import haxe.ds.Either;
-import haxe.io.Bytes;
 import haxe.http.HttpStatus;
+import haxe.io.Bytes;
 import weblink.Cookie;
-import weblink._internal.Socket;
-import weblink._internal.Server;
 import weblink._internal.HttpStatusMessage;
+import weblink._internal.Server;
+import weblink._internal.Socket;
+
+private typedef Write = (bytes:Bytes) -> Bytes;
 
 class Response {
 	public var status:HttpStatus;
 	public var contentType:String;
 	public var headers:List<Header>;
 	public var cookies:List<Cookie> = new List<Cookie>();
+	public var write:Write;
+
 	var socket:Socket;
 	var server:Server;
 	var close:Bool = true;
@@ -25,8 +28,9 @@ class Response {
 	}
 
 	public inline function sendBytes(bytes:Bytes) {
-		socket.writeString(sendHeaders(bytes.length).toString());
-		socket.writeBytes(bytes);
+		var bytesToSend:Bytes = (this.write != null) ? this.write(bytes) : bytes;
+		socket.writeString(sendHeaders(bytesToSend.length).toString());
+		socket.writeBytes(bytesToSend);
 		end();
 	}
 
@@ -67,7 +71,7 @@ class Response {
 			+ 'Content-length: $length\r\n');
 		for (cookie in cookies) {
 			string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
-		} 
+		}
 		if (headers != null) {
 			for (header in headers) {
 				string.add(header.key + ": " + header.value + "\r\n");
