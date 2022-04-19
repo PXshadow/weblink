@@ -19,11 +19,13 @@ class Weblink {
 	var _path:String;
 	var _dir:String;
 	var _cors:String = "*";
+	var _middleware:Func;
 
 	public function new() {}
 
-	public function get(func:Func) {
+	public function get(func:Func, ?middleware:Func) {
 		this._get = func;
+		this._middleware = middleware;
 	}
 
 	public function post(func:Func) {
@@ -69,8 +71,11 @@ class Weblink {
 			if (_serveEvent(request, response))
 				return;
 		}
-		if (_get != null)
+		if (_get != null) {
+			if (this._middleware != null)
+				this._middleware(request, response);
 			_get(request, response);
+		}
 	}
 
 	private inline function _serveEvent(request:Request, response:Response):Bool {
