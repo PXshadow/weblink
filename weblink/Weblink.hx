@@ -10,34 +10,37 @@ private typedef Func = (request:Request, response:Response) -> Void;
 
 class Weblink {
 	public var server:Server;
+	public var routes:Map<String, Map<String, Array<Func>>> = [];
 
-	var _get:Func;
-	var _post:Func;
-	var _put:Func;
-	var _head:Func;
 	var _serve:Bool = false;
 	var _path:String;
 	var _dir:String;
 	var _cors:String = "*";
-	var _middleware:Func;
 
 	public function new() {}
 
-	public function get(func:Func, ?middleware:Func) {
-		this._get = func;
-		this._middleware = middleware;
+	private function _updateRoute(path:String, method:String, functionsList:Array<Func>) {
+		if (this.routes[path] != null) {
+			this.routes[path][method] = functionsList;
+		} else {
+			this.routes[path] = [method => functionsList];
+		}
 	}
 
-	public function post(func:Func) {
-		this._post = func;
+	public function get(path:String, func:Func, ?middleware:Func) {
+		_updateRoute(path, "GET", [func, middleware]);
 	}
 
-	public function put(func:Func) {
-		this._put = func;
+	public function post(path:String, func:Func) {
+		_updateRoute(path, "POST", [func]);
 	}
 
-	public function head(func:Func) {
-		this._head = func;
+	public function put(path:String, func:Func) {
+		_updateRoute(path, "PUT", [func]);
+	}
+
+	public function head(path:String, func:Func) {
+		_updateRoute(path, "HEAD", [func]);
 	}
 
 	public function listen(port:Int, blocking:Bool = true) {
@@ -57,13 +60,13 @@ class Weblink {
 	}
 
 	private inline function _postEvent(request:Request, response:Response) {
-		if (_post != null)
-			_post(request, response);
+		var route = this.routes[request.path];
+		route.get("POST")[0](request, response);
 	}
 
 	private inline function _putEvent(request:Request, response:Response) {
-		if (_put != null)
-			_put(request, response);
+		var route = this.routes[request.path];
+		route.get("PUT")[0](request, response);
 	}
 
 	private function _getEvent(request:Request, response:Response) {
@@ -71,11 +74,12 @@ class Weblink {
 			if (_serveEvent(request, response))
 				return;
 		}
-		if (_get != null) {
-			if (this._middleware != null)
-				this._middleware(request, response);
-			_get(request, response);
-		}
+		var routeList = this.routes[request.path].get("GET");
+		var get = routeList[0];
+		var middleware = routeList[1];
+		if (middleware != null)
+			middleware(request, response);
+		get(request, response);
 	}
 
 	private inline function _serveEvent(request:Request, response:Response):Bool {
@@ -111,7 +115,7 @@ class Weblink {
 	}
 
 	private inline function _headEvent(request:Request, response:Response) {
-		if (_head != null)
-			_head(request, response);
+		var route = this.routes[request.path];
+		route.get("HEAD")[0](request, response);
 	}
 }
