@@ -5,16 +5,16 @@ class Request {
 		Sys.println("start test");
 		var app = new weblink.Weblink();
 		var data = haxe.io.Bytes.ofString(Std.string(Std.random(10 * 1000))).toHex();
-		app.get(function(request, response) {
+		app.get("/", function(request, response) {
 			response.send(data);
 		});
-		app.post(function(request, response) {
+		app.post("/", function(request, response) {
 			response.send(data + request.data);
 		});
-		app.put(function(request, response) {
+		app.put("/", function(request, response) {
 			response.send(data + request.data);
 		});
-		app.listen(2000,false);
+		app.listen(2000, false);
 
 		sys.thread.Thread.create(() -> {
 			var response = Http.requestUrl("http://localhost:2000");

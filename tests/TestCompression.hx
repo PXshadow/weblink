@@ -11,7 +11,7 @@ class TestCompression {
 		var data = "test";
 		var bytes = haxe.io.Bytes.ofString(data);
 		var compressedData = Compress.run(bytes, 9);
-		app.get(function(request, response) {
+		app.get("/", function(request, response) {
 			response.sendBytes(bytes);
 		}, Compression.deflateCompressionMiddleware);
 		app.listen(2000, false);
