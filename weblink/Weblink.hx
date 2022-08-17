@@ -1,5 +1,6 @@
 package weblink;
 
+import haxe.http.HttpStatus;
 import haxe.http.HttpMethod;
 import weblink._internal.Mime;
 import weblink._internal.Server;
@@ -69,12 +70,25 @@ class Weblink {
 		route.get("PUT")[0](request, response);
 	}
 
+
+	public function returnNotFound(request:Request, response:Response){
+		response.status = 404;
+		response.send("Error 404, Route Not found.");
+	}
+	
 	private function _getEvent(request:Request, response:Response) {
 		if (_serve && response.status == OK && request.path.indexOf(_path) == 0) {
 			if (_serveEvent(request, response))
 				return;
 		}
-		var routeList = this.routes[request.path].get("GET");
+		var routeList = [];
+		if(this.routes.exists(request.path)){
+			routeList = this.routes[request.path].get("GET");
+		} else { // Don't have the route, don't process it and escape.
+			returnNotFound(request, response);
+			return;
+		}
+
 		var get = routeList[0];
 		var middleware = routeList[1];
 		if (middleware != null)

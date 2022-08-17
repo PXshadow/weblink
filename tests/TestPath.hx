@@ -31,6 +31,15 @@ class TestPath {
 			var response = Http.requestUrl("http://localhost:2000/another");
 			if (response != data)
 				throw "/another: post response data does not match: " + response + " data: " + data;
+
+			try {
+				var nopath = Http.requestUrl("http://localhost:2000/notapath");
+			} catch (e) {
+				if(e.message != "Http Error #404"){
+					throw "/notapath should return a Status 404.";
+				}
+			}
+
 			app.close();
 		});
 
