@@ -1,5 +1,6 @@
 package weblink;
 
+import haxe.Constraints.Function;
 import haxe.http.HttpStatus;
 import haxe.http.HttpMethod;
 import weblink._internal.Mime;
@@ -13,6 +14,11 @@ class Weblink {
 	public var server:Server;
 	public var routes:Map<String, Map<String, Array<Func>>> = [];
 
+	//Anonymous and redefinable function for 404 errors.
+	public var fnRouteNotFound(null,set):Func = function(request:Request, response:Response):Void{
+		response.status = 404;
+		response.send("Error 404, Route Not found.");
+	}
 	var _serve:Bool = false;
 	var _path:String;
 	var _dir:String;
@@ -71,10 +77,7 @@ class Weblink {
 	}
 
 
-	public function returnNotFound(request:Request, response:Response){
-		response.status = 404;
-		response.send("Error 404, Route Not found.");
-	}
+
 	
 	private function _getEvent(request:Request, response:Response) {
 		if (_serve && response.status == OK && request.path.indexOf(_path) == 0) {
@@ -85,7 +88,7 @@ class Weblink {
 		if(this.routes.exists(request.path)){
 			routeList = this.routes[request.path].get("GET");
 		} else { // Don't have the route, don't process it and escape.
-			returnNotFound(request, response);
+			this.fnRouteNotFound(request, response);
 			return;
 		}
 
@@ -131,5 +134,10 @@ class Weblink {
 	private inline function _headEvent(request:Request, response:Response) {
 		var route = this.routes[request.path];
 		route.get("HEAD")[0](request, response);
+	}
+
+	public function set_fnRouteNotFound(value:Func):Func {
+		this.fnRouteNotFound = value;
+		return this.fnRouteNotFound;
 	}
 }

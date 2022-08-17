@@ -1,9 +1,18 @@
+import haxe.display.Display.Package;
 import haxe.Http;
 
 class TestPath {
 	public static function main() {
 		trace("Starting Path Test");
 		var app = new weblink.Weblink();
+
+		//simply reimplement the route not found to confirm that doing this doesn't kill everything.
+		app.set_fnRouteNotFound(function(request, response){
+			response.status = 404;
+			response.send("Error 404, Route Not found.");
+		});
+
+
 		var data = haxe.io.Bytes.ofString(Std.string(Std.random(10 * 1000))).toHex();
 		app.get("/path", function(request, response) {
 			response.send(data);
@@ -39,7 +48,6 @@ class TestPath {
 					throw "/notapath should return a Status 404.";
 				}
 			}
-
 			app.close();
 		});
 
