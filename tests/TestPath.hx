@@ -1,4 +1,3 @@
-import haxe.display.Display.Package;
 import haxe.Http;
 
 class TestPath {
