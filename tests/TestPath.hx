@@ -6,7 +6,7 @@ class TestPath {
 		var app = new weblink.Weblink();
 
 		//simply reimplement the route not found to confirm that doing this doesn't kill everything.
-		app.set_fnRouteNotFound(function(request, response){
+		app.set_pathNotFound(function(request, response){
 			response.status = 404;
 			response.send("Error 404, Route Not found.");
 		});
