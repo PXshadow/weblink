@@ -1,5 +1,8 @@
 package weblink;
 
+import haxe.http.HttpStatus;
+import haxe.http.HttpMethod;
+import weblink._internal.Mime;
 import weblink._internal.Server;
 
 using haxe.io.Path;
@@ -10,8 +13,11 @@ class Weblink {
 	public var server:Server;
 	public var routes:Map<String, Map<String, Array<Func>>> = [];
 
-	//Anonymous and redefinable function for 404 errors.
-	public var fnRouteNotFound(null,set):Func = function(request:Request, response:Response):Void{
+	/**
+	Default anonymous function defining the behavior should a requested route not exist.
+	Suggested that application implementers use set_pathNotFound() to define custom 404 status behavior/pages
+	**/
+	public var pathNotFound(null,set):Func = function(request:Request, response:Response):Void{
 		response.status = 404;
 		response.send("Error 404, Route Not found.");
 	}
@@ -84,7 +90,7 @@ class Weblink {
 		if(this.routes.exists(request.path)){
 			routeList = this.routes[request.path].get("GET");
 		} else { // Don't have the route, don't process it and escape.
-			this.fnRouteNotFound(request, response);
+			this.pathNotFound(request, response);
 			return;
 		}
 
@@ -132,8 +138,8 @@ class Weblink {
 		route.get("HEAD")[0](request, response);
 	}
 
-	public function set_fnRouteNotFound(value:Func):Func {
-		this.fnRouteNotFound = value;
-		return this.fnRouteNotFound;
+	public function set_pathNotFound(value:Func):Func {
+		this.pathNotFound = value;
+		return this.pathNotFound;
 	}
 }
