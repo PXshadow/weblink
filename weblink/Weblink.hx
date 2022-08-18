@@ -1,8 +1,5 @@
 package weblink;
 
-import haxe.http.HttpStatus;
-import haxe.http.HttpMethod;
-import weblink._internal.Mime;
 import weblink._internal.Server;
 
 using haxe.io.Path;
