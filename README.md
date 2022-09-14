@@ -59,21 +59,31 @@ Supported
 - [encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Compression)
     - [ ] gzip
     - [ ] compress
-    - [ ] deflate
+    - [x] deflate
     - [ ] br
 - caching
     - [ ] age
     - [ ] expires
+- security
+    - [x] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
+    - [ ] [cors](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+    - [x] [JWT](https://www.rfc-editor.org/rfc/rfc7519)
+    - [x] [JWKS](https://www.rfc-editor.org/rfc/rfc7517#section-5)
+    - [ ] OAuth2
+        - [x] JWT Token endpoint
+        - [x] [HS256](https://www.rfc-editor.org/rfc/rfc2104.html)
+        - [ ] [Token revocation](https://oauth.net/2/token-revocation/)
+        - [ ] [Metadata](https://oauth.net/2/authorization-server-metadata/)
+    - [x] Bcrypt Passwords
+    - [ ] ssl (haxe 4.2)
+    - [ ] [cert bot](https://certbot.eff.org/) easy integration
 - extra
     - [x] [content type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
-    - [ ] [cors](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
     - [x] bytes (png image for instance)
     - [x] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
-    - [ ] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
-    - [ ] ssl (haxe 4.2) 
-    - [ ] [cert bot](https://certbot.eff.org/) easy integration
     - [x] serve web content (files ex: html/images/sounds)
     - [ ] connection public ip (haxe 4.2)
+    - [x] projection (a type with certain attributes of another type, useful to send only some data)
 
 # Contributing
 
