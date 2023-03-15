@@ -8,6 +8,7 @@ import weblink._internal.Server;
 class Request {
 	public var cookies:List<Cookie>;
 	public var path:String;
+	public var basePath:String;
 	public var ip:String;
 	public var baseUrl:String;
 	public var headers:StringMap<String>;
@@ -34,6 +35,18 @@ class Request {
 		var first = lines[0];
 		var index = first.indexOf("/");
 		path = first.substring(index, first.indexOf(" ", index + 1));
+		var index2 = path.indexOf("/", 1);
+		var index3 = path.indexOf("?", 1);
+		if (index2 == -1)
+			index2 = index3;
+		if (index2 != -1) {
+			basePath = path.substr(0,index2);
+		}else{
+			basePath = path;
+		}
+		// trace(basePath);
+		// trace(path);
+		//trace(first.substring(0, index - 1).toUpperCase());
 		method = first.substring(0, index - 1).toUpperCase();
 		for (i in 0...lines.length - 1) {
 			if (lines[i] == "") {
