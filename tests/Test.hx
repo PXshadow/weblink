@@ -22,6 +22,7 @@ class Test {
 		TestPath.main();
 		TestPostData.main();
 		TestProjection.main();
+		TestRadixTree.main();
 		TestSign.main();
 		Sys.exit(0);
 	}
