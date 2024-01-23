@@ -4,6 +4,7 @@ import haxe.io.Bytes;
 import haxe.zip.Compress;
 
 class Compression {
+	@:deprecated("Use weblink.middleware.DefaultMiddleware.compressDeflate instead")
 	public static function deflateCompressionMiddleware(request:Request, response:Response):Void {
 		if (response.headers == null)
 			response.headers = new List<Header>();

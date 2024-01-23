@@ -1,6 +1,7 @@
 package weblink;
 
 import weblink._internal.Server;
+import weblink.middleware.Middleware;
 import weblink.security.CredentialsProvider;
 import weblink.security.Jwks;
 import weblink.security.OAuth.OAuthEndpoints;
@@ -11,7 +12,7 @@ private typedef Func = (request:Request, response:Response) -> Void;
 
 class Weblink {
 	public var server:Server;
-	public var routes:Map<String, Map<String, Array<Func>>> = [];
+	public var routes:Map<String, Map<String, Func>> = [];
 
 	/**
 		Default anonymous function defining the behavior should a requested route not exist.
@@ -29,28 +30,31 @@ class Weblink {
 
 	public function new() {}
 
-	private function _updateRoute(path:String, method:String, functionsList:Array<Func>) {
+	private function _updateRoute(path:String, method:String, flatHandler:Func) {
 		if (this.routes[path] != null) {
-			this.routes[path][method] = functionsList;
+			this.routes[path][method] = flatHandler;
 		} else {
-			this.routes[path] = [method => functionsList];
+			this.routes[path] = [method => flatHandler];
 		}
 	}
 
-	public function get(path:String, func:Func, ?middleware:Func) {
-		_updateRoute(path, "GET", [func, middleware]);
+	public function get(path:String, func:Func, ?middleware:Middleware) {
+		if (middleware != null) {
+			func = middleware(func);
+		}
+		_updateRoute(path, "GET", func);
 	}
 
 	public function post(path:String, func:Func) {
-		_updateRoute(path, "POST", [func]);
+		_updateRoute(path, "POST", func);
 	}
 
 	public function put(path:String, func:Func) {
-		_updateRoute(path, "PUT", [func]);
+		_updateRoute(path, "PUT", func);
 	}
 
 	public function head(path:String, func:Func) {
-		_updateRoute(path, "HEAD", [func]);
+		_updateRoute(path, "HEAD", func);
 	}
 
 	public function listen(port:Int, blocking:Bool = true) {
@@ -92,12 +96,12 @@ class Weblink {
 
 	private inline function _postEvent(request:Request, response:Response) {
 		var route = this.routes[request.path];
-		route.get("POST")[0](request, response);
+		route.get("POST")(request, response);
 	}
 
 	private inline function _putEvent(request:Request, response:Response) {
 		var route = this.routes[request.path];
-		route.get("PUT")[0](request, response);
+		route.get("PUT")(request, response);
 	}
 
 	private function _getEvent(request:Request, response:Response) {
@@ -105,21 +109,17 @@ class Weblink {
 			if (_serveEvent(request, response))
 				return;
 		}
-		var routeList = [];
+		var handler:Null<Func> = null;
 		if (this.routes.exists(request.basePath)) {
-			routeList = this.routes[request.basePath].get("GET");
+			handler = this.routes[request.basePath].get("GET");
 		} else if (this.routes.exists(request.path)) {
-			routeList = this.routes[request.path].get("GET");
+			handler = this.routes[request.path].get("GET");
 		} else { // Don't have the route, don't process it and escape.
 			this.pathNotFound(request, response);
 			return;
 		}
 
-		var get = routeList[0];
-		var middleware = routeList[1];
-		if (middleware != null)
-			middleware(request, response);
-		get(request, response);
+		handler(request, response);
 	}
 
 	private inline function _serveEvent(request:Request, response:Response):Bool {
@@ -156,7 +156,7 @@ class Weblink {
 
 	private inline function _headEvent(request:Request, response:Response) {
 		var route = this.routes[request.path];
-		route.get("HEAD")[0](request, response);
+		route.get("HEAD")(request, response);
 	}
 
 	public function set_pathNotFound(value:Func):Func {

@@ -1,8 +1,8 @@
 import haxe.Http;
 import haxe.io.Bytes;
 import haxe.zip.Compress;
-import weblink.Compression;
 import weblink.Weblink;
+import weblink.middleware.DefaultMiddleware;
 
 class TestCompression {
 	public static function main() {
@@ -11,9 +11,7 @@ class TestCompression {
 		var data = "test";
 		var bytes = haxe.io.Bytes.ofString(data);
 		var compressedData = Compress.run(bytes, 9);
-		app.get("/", function(request, response) {
-			response.sendBytes(bytes);
-		}, Compression.deflateCompressionMiddleware);
+		app.get("/", (request, response) -> response.sendBytes(bytes), DefaultMiddleware.compressDeflate);
 		app.listen(2000, false);
 
 		sys.thread.Thread.create(() -> {
