@@ -9,6 +9,8 @@ class Request {
 	public var cookies:List<Cookie>;
 	public var path:String;
 	public var basePath:String;
+	/** Contains values for parameters declared in the route matched, if there are any. **/
+	public var routeParams:Map<String, String>;
 	public var ip:String;
 	public var baseUrl:String;
 	public var headers:StringMap<String>;
