@@ -304,8 +304,8 @@ final class Node<T> {
 				}
 				if (outParams != null) {
 					outParams.push({left: name, right: path.substring(0, endPos)});
-					path = path.substring(endPos);
 				}
+				path = path.substring(endPos);
 		}
 
 		// See #addChild(): children are guaranteed to be sorted in a way
