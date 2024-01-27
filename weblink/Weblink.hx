@@ -1,6 +1,7 @@
 package weblink;
 
 import haxe.http.HttpMethod;
+import weblink.Handler;
 import weblink._internal.Server;
 import weblink._internal.ds.RadixTree;
 import weblink.security.CredentialsProvider;
@@ -9,17 +10,15 @@ import weblink.security.OAuth.OAuthEndpoints;
 
 using haxe.io.Path;
 
-private typedef Func = (request:Request, response:Response) -> Void;
-
 class Weblink {
 	public var server:Server;
-	public var routeTree:RadixTree<Func>;
+	public var routeTree:RadixTree<Handler>;
 
 	/**
 		Default anonymous function defining the behavior should a requested route not exist.
 		Suggested that application implementers use set_pathNotFound() to define custom 404 status behavior/pages
 	**/
-	public var pathNotFound(null, set):Func = function(request:Request, response:Response):Void {
+	public var pathNotFound(null, set):Handler = function(request:Request, response:Response):Void {
 		response.status = 404;
 		response.send("Error 404, Route Not found.");
 	}
@@ -33,11 +32,11 @@ class Weblink {
 		this.routeTree = new RadixTree();
 	}
 
-	private function _updateRoute(path:String, method:HttpMethod, handler:Func) {
+	private function _updateRoute(path:String, method:HttpMethod, handler:Handler) {
 		this.routeTree.put(path, method, handler);
 	}
 
-	public function get(path:String, func:Func, ?middleware:Func) {
+	public function get(path:String, func:Handler, ?middleware:Handler) {
 		if (middleware != null) {
 			final oldFunc = func;
 			func = (req, res) -> {
@@ -48,15 +47,15 @@ class Weblink {
 		_updateRoute(path, Get, func);
 	}
 
-	public function post(path:String, func:Func) {
+	public function post(path:String, func:Handler) {
 		_updateRoute(path, Post, func);
 	}
 
-	public function put(path:String, func:Func) {
+	public function put(path:String, func:Handler) {
 		_updateRoute(path, Put, func);
 	}
 
-	public function head(path:String, func:Func) {
+	public function head(path:String, func:Handler) {
 		_updateRoute(path, Head, func);
 	}
 
@@ -129,7 +128,7 @@ class Weblink {
 		}
 	}
 
-	public function set_pathNotFound(value:Func):Func {
+	public function set_pathNotFound(value:Handler):Handler {
 		this.pathNotFound = value;
 		return this.pathNotFound;
 	}
