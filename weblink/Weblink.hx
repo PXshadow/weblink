@@ -4,6 +4,7 @@ import haxe.http.HttpMethod;
 import weblink.Handler;
 import weblink._internal.Server;
 import weblink._internal.ds.RadixTree;
+import weblink.middleware.Middleware;
 import weblink.security.CredentialsProvider;
 import weblink.security.Jwks;
 import weblink.security.OAuth.OAuthEndpoints;
@@ -36,13 +37,9 @@ class Weblink {
 		this.routeTree.put(path, method, handler);
 	}
 
-	public function get(path:String, func:Handler, ?middleware:Handler) {
+	public function get(path:String, func:Handler, ?middleware:Middleware) {
 		if (middleware != null) {
-			final oldFunc = func;
-			func = (req, res) -> {
-				middleware(req, res);
-				oldFunc(req, res);
-			};
+			func = middleware(func);
 		}
 		_updateRoute(path, Get, func);
 	}

@@ -19,6 +19,7 @@ class Test {
 		TestJwks.main();
 		TestJwt.main();
 		TestOAuth2.main();
+		TestMiddlewareShortCircuit.main();
 		TestPath.main();
 		TestPostData.main();
 		TestProjection.main();
