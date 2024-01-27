@@ -12,7 +12,7 @@ import weblink.security.OAuth.OAuthEndpoints;
 using haxe.io.Path;
 
 class Weblink {
-	public var server:Server;
+	public var server:Null<Server>;
 	public var routeTree:RadixTree<Handler>;
 
 	private var middlewareToChain:Array<Middleware> = [];
@@ -46,15 +46,22 @@ class Weblink {
 		this.middlewareToChain.push(middleware);
 	}
 
-	private function _updateRoute(path:String, method:HttpMethod, handler:Handler) {
-		// "Flattens" the handler, so that we can avoid middleware lookup at runtime
+	/**
+		"Flattens" the provided handler,
+		so that we can avoid middleware lookup at runtime.
+	**/
+	private function chainMiddleware(handler:Handler):Handler {
 		var i = this.middlewareToChain.length - 1;
 		while (i >= 0) {
 			final middleware = this.middlewareToChain[i];
 			handler = middleware(handler);
 			i -= 1;
 		}
-		this.routeTree.put(path, method, handler);
+		return handler;
+	}
+
+	private function _updateRoute(path:String, method:HttpMethod, handler:Handler) {
+		this.routeTree.put(path, method, chainMiddleware(handler));
 	}
 
 	public function get(path:String, func:Handler, ?middleware:Middleware) {
@@ -77,6 +84,7 @@ class Weblink {
 	}
 
 	public function listen(port:Int, blocking:Bool = true) {
+		this.pathNotFound = chainMiddleware(this.pathNotFound);
 		server = new Server(port, this);
 		server.update(blocking);
 	}
@@ -146,6 +154,10 @@ class Weblink {
 	}
 
 	public function set_pathNotFound(value:Handler):Handler {
+		if (this.server != null) {
+			throw "cannot change fallback handler at runtime";
+		}
+
 		this.pathNotFound = value;
 		return this.pathNotFound;
 	}
