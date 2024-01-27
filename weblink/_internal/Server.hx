@@ -1,10 +1,10 @@
 package weblink._internal;
 
-import hl.uv.Stream;
-import hl.uv.Loop.LoopRunMode;
 import haxe.MainLoop;
-import haxe.io.Bytes;
 import haxe.http.HttpMethod;
+import haxe.io.Bytes;
+import hl.uv.Loop.LoopRunMode;
+import hl.uv.Stream;
 import sys.net.Host;
 import weblink._internal.Socket;
 
@@ -73,19 +73,30 @@ class Server extends SocketServer {
 		this.parent = parent;
 	}
 
-	private inline function complete(request:Request, socket:Socket) {
+	private function complete(request:Request, socket:Socket) {
 		@:privateAccess var response = request.response(this, socket);
-		switch (request.method) {
-			case Get:
-				@:privateAccess parent._getEvent(request, response);
-			case Post:
-				@:privateAccess parent._postEvent(request, response);
-			case Put:
-				@:privateAccess parent._putEvent(request, response);
-			case Head:
-				@:privateAccess parent._headEvent(request, response);
-			default:
-				trace('Request method: ${request.method} Not supported yet');
+
+		if (request.method == Get
+			&& @:privateAccess parent._serve
+			&& response.status == OK
+			&& request.path.indexOf(@:privateAccess parent._path) == 0) {
+			if (@:privateAccess parent._serveEvent(request, response)) {
+				return;
+			}
+		}
+
+		switch (parent.routeTree.tryGet(request.basePath, request.method)) {
+			case Found(handler, params):
+				request.routeParams = params;
+				handler(request, response);
+			case _:
+				switch (parent.routeTree.tryGet(request.path, request.method)) {
+					case Found(handler, params):
+						request.routeParams = params;
+						handler(request, response);
+					case _:
+						@:privateAccess parent.pathNotFound(request, response);
+				}
 		}
 	}
 

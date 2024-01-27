@@ -1,6 +1,8 @@
 package weblink;
 
+import haxe.http.HttpMethod;
 import weblink._internal.Server;
+import weblink._internal.ds.RadixTree;
 import weblink.security.CredentialsProvider;
 import weblink.security.Jwks;
 import weblink.security.OAuth.OAuthEndpoints;
@@ -11,7 +13,7 @@ private typedef Func = (request:Request, response:Response) -> Void;
 
 class Weblink {
 	public var server:Server;
-	public var routes:Map<String, Map<String, Array<Func>>> = [];
+	public var routeTree:RadixTree<Func>;
 
 	/**
 		Default anonymous function defining the behavior should a requested route not exist.
@@ -27,30 +29,35 @@ class Weblink {
 	var _dir:String;
 	var _cors:String = "*";
 
-	public function new() {}
+	public function new() {
+		this.routeTree = new RadixTree();
+	}
 
-	private function _updateRoute(path:String, method:String, functionsList:Array<Func>) {
-		if (this.routes[path] != null) {
-			this.routes[path][method] = functionsList;
-		} else {
-			this.routes[path] = [method => functionsList];
-		}
+	private function _updateRoute(path:String, method:HttpMethod, handler:Func) {
+		this.routeTree.put(path, method, handler);
 	}
 
 	public function get(path:String, func:Func, ?middleware:Func) {
-		_updateRoute(path, "GET", [func, middleware]);
+		if (middleware != null) {
+			final oldFunc = func;
+			func = (req, res) -> {
+				middleware(req, res);
+				oldFunc(req, res);
+			};
+		}
+		_updateRoute(path, Get, func);
 	}
 
 	public function post(path:String, func:Func) {
-		_updateRoute(path, "POST", [func]);
+		_updateRoute(path, Post, func);
 	}
 
 	public function put(path:String, func:Func) {
-		_updateRoute(path, "PUT", [func]);
+		_updateRoute(path, Put, func);
 	}
 
 	public function head(path:String, func:Func) {
-		_updateRoute(path, "HEAD", [func]);
+		_updateRoute(path, Head, func);
 	}
 
 	public function listen(port:Int, blocking:Bool = true) {
@@ -90,38 +97,6 @@ class Weblink {
 		return this;
 	}
 
-	private inline function _postEvent(request:Request, response:Response) {
-		var route = this.routes[request.path];
-		route.get("POST")[0](request, response);
-	}
-
-	private inline function _putEvent(request:Request, response:Response) {
-		var route = this.routes[request.path];
-		route.get("PUT")[0](request, response);
-	}
-
-	private function _getEvent(request:Request, response:Response) {
-		if (_serve && response.status == OK && request.path.indexOf(_path) == 0) {
-			if (_serveEvent(request, response))
-				return;
-		}
-		var routeList = [];
-		if (this.routes.exists(request.basePath)) {
-			routeList = this.routes[request.basePath].get("GET");
-		} else if (this.routes.exists(request.path)) {
-			routeList = this.routes[request.path].get("GET");
-		} else { // Don't have the route, don't process it and escape.
-			this.pathNotFound(request, response);
-			return;
-		}
-
-		var get = routeList[0];
-		var middleware = routeList[1];
-		if (middleware != null)
-			middleware(request, response);
-		get(request, response);
-	}
-
 	private inline function _serveEvent(request:Request, response:Response):Bool {
 		if (request.path.charAt(0) == "/")
 			request.path = request.basePath.substr(1);
@@ -152,11 +127,6 @@ class Weblink {
 			trace('file/folder not found $path');
 			return false;
 		}
-	}
-
-	private inline function _headEvent(request:Request, response:Response) {
-		var route = this.routes[request.path];
-		route.get("HEAD")[0](request, response);
 	}
 
 	public function set_pathNotFound(value:Func):Func {
