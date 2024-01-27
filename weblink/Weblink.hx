@@ -15,6 +15,8 @@ class Weblink {
 	public var server:Server;
 	public var routeTree:RadixTree<Handler>;
 
+	private var middlewareToChain:Array<Middleware> = [];
+
 	/**
 		Default anonymous function defining the behavior should a requested route not exist.
 		Suggested that application implementers use set_pathNotFound() to define custom 404 status behavior/pages
@@ -33,7 +35,25 @@ class Weblink {
 		this.routeTree = new RadixTree();
 	}
 
+	/**
+		Adds middleware to new routes. Does not affect already registered routes.
+
+		Middleware is a function that intercepts incoming requests and takes action on them.
+		Middleware can be used for logging, authentication and many more.
+	**/
+	public function use(middleware:Middleware) {
+		// Idea: Should adding middleware be disallowed once some routes are defined?
+		this.middlewareToChain.push(middleware);
+	}
+
 	private function _updateRoute(path:String, method:HttpMethod, handler:Handler) {
+		// "Flattens" the handler, so that we can avoid middleware lookup at runtime
+		var i = this.middlewareToChain.length - 1;
+		while (i >= 0) {
+			final middleware = this.middlewareToChain[i];
+			handler = middleware(handler);
+			i -= 1;
+		}
 		this.routeTree.put(path, method, handler);
 	}
 
