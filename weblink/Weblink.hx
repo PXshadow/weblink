@@ -1,25 +1,27 @@
 package weblink;
 
 import haxe.http.HttpMethod;
+import weblink.Handler;
 import weblink._internal.Server;
 import weblink._internal.ds.RadixTree;
+import weblink.middleware.Middleware;
 import weblink.security.CredentialsProvider;
 import weblink.security.Jwks;
 import weblink.security.OAuth.OAuthEndpoints;
 
 using haxe.io.Path;
 
-private typedef Func = (request:Request, response:Response) -> Void;
-
 class Weblink {
-	public var server:Server;
-	public var routeTree:RadixTree<Func>;
+	public var server:Null<Server>;
+	public var routeTree:RadixTree<Handler>;
+
+	private var middlewareToChain:Array<Middleware> = [];
 
 	/**
 		Default anonymous function defining the behavior should a requested route not exist.
 		Suggested that application implementers use set_pathNotFound() to define custom 404 status behavior/pages
 	**/
-	public var pathNotFound(null, set):Func = function(request:Request, response:Response):Void {
+	public var pathNotFound(null, set):Handler = function(request:Request, response:Response):Void {
 		response.status = 404;
 		response.send("Error 404, Route Not found.");
 	}
@@ -33,34 +35,56 @@ class Weblink {
 		this.routeTree = new RadixTree();
 	}
 
-	private function _updateRoute(path:String, method:HttpMethod, handler:Func) {
-		this.routeTree.put(path, method, handler);
+	/**
+		Adds middleware to new routes. Does not affect already registered routes.
+
+		Middleware is a function that intercepts incoming requests and takes action on them.
+		Middleware can be used for logging, authentication and many more.
+	**/
+	public function use(middleware:Middleware) {
+		// Idea: Should adding middleware be disallowed once some routes are defined?
+		this.middlewareToChain.push(middleware);
 	}
 
-	public function get(path:String, func:Func, ?middleware:Func) {
+	/**
+		"Flattens" the provided handler,
+		so that we can avoid middleware lookup at runtime.
+	**/
+	private function chainMiddleware(handler:Handler):Handler {
+		var i = this.middlewareToChain.length - 1;
+		while (i >= 0) {
+			final middleware = this.middlewareToChain[i];
+			handler = middleware(handler);
+			i -= 1;
+		}
+		return handler;
+	}
+
+	private function _updateRoute(path:String, method:HttpMethod, handler:Handler) {
+		this.routeTree.put(path, method, chainMiddleware(handler));
+	}
+
+	public function get(path:String, func:Handler, ?middleware:Middleware) {
 		if (middleware != null) {
-			final oldFunc = func;
-			func = (req, res) -> {
-				middleware(req, res);
-				oldFunc(req, res);
-			};
+			func = middleware(func);
 		}
 		_updateRoute(path, Get, func);
 	}
 
-	public function post(path:String, func:Func) {
+	public function post(path:String, func:Handler) {
 		_updateRoute(path, Post, func);
 	}
 
-	public function put(path:String, func:Func) {
+	public function put(path:String, func:Handler) {
 		_updateRoute(path, Put, func);
 	}
 
-	public function head(path:String, func:Func) {
+	public function head(path:String, func:Handler) {
 		_updateRoute(path, Head, func);
 	}
 
 	public function listen(port:Int, blocking:Bool = true) {
+		this.pathNotFound = chainMiddleware(this.pathNotFound);
 		server = new Server(port, this);
 		server.update(blocking);
 	}
@@ -129,7 +153,11 @@ class Weblink {
 		}
 	}
 
-	public function set_pathNotFound(value:Func):Func {
+	public function set_pathNotFound(value:Handler):Handler {
+		if (this.server != null) {
+			throw "cannot change fallback handler at runtime";
+		}
+
 		this.pathNotFound = value;
 		return this.pathNotFound;
 	}

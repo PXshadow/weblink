@@ -10,7 +10,7 @@ using StringTools;
 	A modified version of a radix tree, suitable for HTTP request routing.
 
 	Note: This class is generic to make testing easier.
-	Out of testing, the T parameter will always be weblink.Func.
+	Out of testing, the T parameter will always be weblink.Handler.
 **/
 class RadixTree<T> {
 	public var root:Node<T>;
@@ -73,7 +73,7 @@ enum Edge {
 	as it stores a reference to its parent.
 
 	Note: This class is generic to make testing easier.
-	Out of testing, the T parameter will always be weblink.Func.
+	Out of testing, the T parameter will always be weblink.Handler.
 **/
 @:allow(weblink._internal.ds.RadixTree)
 final class Node<T> {
