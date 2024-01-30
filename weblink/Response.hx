@@ -2,6 +2,7 @@ package weblink;
 
 import haxe.http.HttpStatus;
 import haxe.io.Bytes;
+import haxe.io.Encoding;
 import weblink.Cookie;
 import weblink._internal.HttpStatusMessage;
 import weblink._internal.Server;
@@ -44,10 +45,7 @@ class Response {
 	}
 
 	public inline function send(data:String) {
-		var buff = sendHeaders(data.length);
-		buff.add(data);
-		socket.writeString(buff.toString());
-		end();
+		this.sendBytes(Bytes.ofString(data, Encoding.UTF8));
 	}
 
 	private function end() {
