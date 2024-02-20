@@ -3,6 +3,7 @@ package weblink;
 import haxe.http.HttpStatus;
 import haxe.io.Bytes;
 import haxe.io.Encoding;
+import haxe.io.Eof;
 import weblink.Cookie;
 import weblink._internal.HttpStatusMessage;
 import weblink._internal.Server;
@@ -13,12 +14,12 @@ private typedef Write = (bytes:Bytes) -> Bytes;
 class Response {
 	public var status:HttpStatus;
 	public var contentType:String;
-	public var headers:List<Header>;
+	public var headers:Null<List<Header>>;
 	public var cookies:List<Cookie> = new List<Cookie>();
-	public var write:Write;
+	public var write:Null<Write>;
 
-	var socket:Socket;
-	var server:Server;
+	var socket:Null<Socket>;
+	var server:Null<Server>;
 	var close:Bool = true;
 
 	private function new(socket:Socket, server:Server) {
@@ -28,10 +29,24 @@ class Response {
 		status = OK;
 	}
 
-	public inline function sendBytes(bytes:Bytes) {
-		var bytesToSend:Bytes = (this.write != null) ? this.write(bytes) : bytes;
-		socket.writeString(sendHeaders(bytesToSend.length).toString());
-		socket.writeBytes(bytesToSend);
+	public function sendBytes(bytes:Bytes) {
+		final socket = this.socket;
+		if (socket == null) {
+			throw "trying to push more data to a Response that has already been completed";
+		}
+
+		final transformer = this.write;
+		if (transformer != null) {
+			bytes = transformer(bytes);
+		}
+
+		try {
+			socket.writeString(sendHeaders(bytes.length).toString());
+			socket.writeBytes(bytes);
+		} catch (_:Eof) {
+			// The connection has already been closed, silently ignore
+		}
+
 		end();
 	}
 
@@ -49,11 +64,14 @@ class Response {
 	}
 
 	private function end() {
-		if (close) {
-			server.closeSocket(socket);
+		this.server = null;
+		final socket = this.socket;
+		if (socket != null) {
+			if (this.close) {
+				socket.close();
+			}
+			this.socket = null;
 		}
-		socket = null;
-		server = null;
 	}
 
 	private inline function initLine():String {

@@ -107,10 +107,6 @@ class Server extends SocketServer {
 		} while (running && blocking);
 	}
 
-	public inline function closeSocket(socket:Socket) {
-		// sockets.remove(socket);
-		socket.close();
-	}
 	override function close(?callb:() -> Void) {
 		super.close(callb);
 		loop.stop();
