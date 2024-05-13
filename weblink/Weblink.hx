@@ -28,6 +28,7 @@ class Weblink {
 	}
 
 	public function cors_middleware(request:Request, response:Response):Void {
+		response.headers = new List<Header>();
 		response.headers.add({key: "Access-Control-Allow-Origin", value: cors});
 	}
 
