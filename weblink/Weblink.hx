@@ -30,6 +30,7 @@ class Weblink {
 	public function cors_middleware(request:Request, response:Response):Void {
 		response.headers = new List<Header>();
 		response.headers.add({key: "Access-Control-Allow-Origin", value: cors});
+		response.headers.add({key: "Access-Control-Allow-Headers", value: "*"});
 	}
 
 	var _serve:Bool = false;
