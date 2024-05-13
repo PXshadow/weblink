@@ -8,11 +8,15 @@ import hl.uv.Stream;
 import sys.net.Host;
 import weblink._internal.Socket;
 
+using Lambda;
+
 class Server extends SocketServer {
 	// var sockets:Array<Socket>;
 	var parent:Weblink;
 	var stream:Stream;
+
 	public var running:Bool = true;
+
 	var loop:hl.uv.Loop;
 
 	public function new(port:Int, parent:Weblink) {
@@ -75,6 +79,10 @@ class Server extends SocketServer {
 
 	private function complete(request:Request, socket:Socket) {
 		@:privateAccess var response = request.response(this, socket);
+
+		if (request.method == Options) {
+			response.send("Allow: " + parent.allowed_methods_string);
+		}
 
 		if (request.method == Get
 			&& @:privateAccess parent._serve

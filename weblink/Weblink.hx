@@ -14,6 +14,7 @@ using haxe.io.Path;
 class Weblink {
 	public var server:Null<Server>;
 	public var routeTree:RadixTree<Handler>;
+	public var allowed_methods = new Map<HttpMethod, Bool>();
 
 	private var middlewareToChain:Array<Middleware> = [];
 
@@ -26,10 +27,16 @@ class Weblink {
 		response.send("Error 404, Route Not found.");
 	}
 
+	public function cors_middleware(request:Request, response:Response):Void {
+		response.headers.add({key: "Access-Control-Allow-Origin", value: cors});
+	}
+
 	var _serve:Bool = false;
 	var _path:String;
 	var _dir:String;
-	var _cors:String = "*";
+
+	public var cors:String = "*";
+	public var allowed_methods_string = "";
 
 	public function new() {
 		this.routeTree = new RadixTree();
@@ -68,29 +75,44 @@ class Weblink {
 		if (middleware != null) {
 			func = middleware(func);
 		}
+		allowed_methods[Get] = true;
 		_updateRoute(path, Get, func);
 	}
 
 	public function post(path:String, func:Handler) {
+		allowed_methods[Post] = true;
 		_updateRoute(path, Post, func);
 	}
 
 	public function put(path:String, func:Handler) {
+		allowed_methods[Put] = true;
 		_updateRoute(path, Put, func);
 	}
 
 	public function head(path:String, func:Handler) {
+		allowed_methods[Head] = true;
 		_updateRoute(path, Head, func);
 	}
 
 	public function listen(port:Int, blocking:Bool = true) {
+		if (cors.length > 0)
+			this.middlewareToChain.push(cors_middleware);
 		this.pathNotFound = chainMiddleware(this.pathNotFound);
+		allowed_methods[Options] = true;
+		var allowed_methods_array = new Array<String>();
+		for (k => v in allowed_methods) {
+			if (v) {
+				allowed_methods_array.push(k);
+			}
+		}
+
+		allowed_methods_string = allowed_methods_array.join(", ");
 		server = new Server(port, this);
 		server.update(blocking);
 	}
 
 	public function serve(path:String = "", dir:String = "", cors:String = "*") {
-		_cors = cors;
+		this.cors = cors;
 		_path = path;
 		_dir = dir;
 		_serve = true;
@@ -127,8 +149,8 @@ class Weblink {
 		var ext = request.path.extension();
 		var mime = weblink._internal.Mime.types.get(ext);
 		response.headers = new List<Header>();
-		if (_cors.length > 0)
-			response.headers.add({key: "Access-Control-Allow-Origin", value: _cors});
+		if (cors.length > 0)
+			response.headers.add({key: "Access-Control-Allow-Origin", value: cors});
 		response.contentType = mime == null ? "text/plain" : mime;
 		var path = Path.join([_dir, request.basePath.substr(_path.length)]).normalize();
 		if (path == "")
