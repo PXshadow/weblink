@@ -82,6 +82,7 @@ class Server extends SocketServer {
 
 		if (request.method == Options) {
 			response.send("Allow: " + parent.allowed_methods_string);
+			return;
 		}
 
 		if (request.method == Get
