@@ -73,6 +73,11 @@ class Weblink {
 		this.routeTree.put(path, method, chainMiddleware(handler));
 	}
 
+	public function enable_cors(_cors:String) {
+		cors = _cors;
+		this.middlewareToChain.push(cors_middleware);
+	}
+
 	public function get(path:String, func:Handler, ?middleware:Middleware) {
 		if (middleware != null) {
 			func = middleware(func);
@@ -97,8 +102,6 @@ class Weblink {
 	}
 
 	public function listen(port:Int, blocking:Bool = true) {
-		if (cors.length > 0)
-			this.middlewareToChain.push(cors_middleware);
 		this.pathNotFound = chainMiddleware(this.pathNotFound);
 		allowed_methods[Options] = true;
 		var allowed_methods_array = new Array<String>();
