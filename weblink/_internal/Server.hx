@@ -81,6 +81,8 @@ class Server extends SocketServer {
 		@:privateAccess var response = request.response(this, socket);
 
 		if (request.method == Options) {
+			if (parent.cors.length > 0)
+				parent.cors_middleware(request, response);
 			response.send("Allow: " + parent.allowed_methods_string);
 			return;
 		}
