@@ -3,12 +3,28 @@ package weblink._internal;
 import haxe.MainLoop;
 import haxe.http.HttpMethod;
 import haxe.io.Bytes;
-import hl.uv.Loop.LoopRunMode;
-import hl.uv.Stream;
 import sys.net.Host;
 import weblink._internal.Socket;
 
 using Lambda;
+
+#if hl
+import hl.uv.Loop.LoopRunMode;
+import hl.uv.Loop;
+import hl.uv.Stream;
+#else
+class Loop {
+	public function new() {}
+
+	public static function getDefault():Loop {
+		return new Loop();
+	}
+
+	public function stop() {}
+
+	public function run(a) {}
+}
+#end
 
 class Server extends SocketServer {
 	// var sockets:Array<Socket>;
@@ -17,11 +33,11 @@ class Server extends SocketServer {
 
 	public var running:Bool = true;
 
-	var loop:hl.uv.Loop;
+	var loop:Loop;
 
 	public function new(port:Int, parent:Weblink) {
 		// sockets = [];
-		loop = hl.uv.Loop.getDefault();
+		loop = Loop.getDefault();
 		super(loop);
 		bind(new Host("0.0.0.0"), port);
 		noDelay(true);
@@ -114,6 +130,9 @@ class Server extends SocketServer {
 	public function update(blocking:Bool = true) {
 		do {
 			@:privateAccess MainLoop.tick(); // for timers
+			#if js
+			var NoWait = 0;
+			#end
 			loop.run(NoWait);
 		} while (running && blocking);
 	}
