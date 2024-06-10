@@ -1,5 +1,6 @@
 package weblink;
 
+import haxe.Json;
 import haxe.http.HttpStatus;
 import haxe.io.Bytes;
 import haxe.io.Encoding;
@@ -61,6 +62,10 @@ class Response {
 
 	public inline function send(data:String) {
 		this.sendBytes(Bytes.ofString(data, Encoding.UTF8));
+	}
+
+	public inline function json(data:Dynamic, pretty = false) {
+		send(if (pretty) Json.stringify(data, null, " ") else Json.stringify(data));
 	}
 
 	private function end() {
