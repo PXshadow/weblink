@@ -24,14 +24,12 @@ class SocketServer extends #if (hl && !nolibuv) hl.uv.Tcp #else sys.net.Socket #
 
 	public function listen(backlog:Int, cb:Void->Void) {
 		node_socket.on("connection", function(con) {
-			trace("new con", con);
 			cons.push(con);
 			cb();
 		});
 	}
 
 	public function accept() {
-		trace("handling");
 		return cons.shift();
 	}
 
