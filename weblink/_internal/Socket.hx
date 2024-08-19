@@ -7,7 +7,7 @@ import js.node.Buffer;
 #end
 #if hl
 import hl.uv.Stream;
-#else
+#elseif js
 // typedef Stream = js.node.net.Socket;
 
 abstract Stream(js.node.net.Socket) {
