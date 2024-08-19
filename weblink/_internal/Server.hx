@@ -112,15 +112,28 @@ class Server extends SocketServer {
 			}
 		}
 
+		var execute=(handler)->{
+			try {
+
+				handler(request, response);
+			} catch(ex){
+				trace(ex,ex.stack);
+				//TODO check PRODUCTION env var
+				response.status=500;
+				response.send(ex.toString()+"\n"+ex.stack);
+			}
+		}
+
 		switch (parent.routeTree.tryGet(request.basePath, request.method)) {
 			case Found(handler, params):
 				request.routeParams = params;
-				handler(request, response);
+				execute(handler);
+				
 			case _:
 				switch (parent.routeTree.tryGet(request.path, request.method)) {
 					case Found(handler, params):
 						request.routeParams = params;
-						handler(request, response);
+						execute(handler);
 					case _:
 						@:privateAccess parent.pathNotFound(request, response);
 				}
