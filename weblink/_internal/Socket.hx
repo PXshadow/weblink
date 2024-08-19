@@ -1,7 +1,10 @@
 package weblink._internal;
 
 import haxe.io.Bytes;
+import haxe.io.BytesBuffer;
+#if js
 import js.node.Buffer;
+#end
 #if hl
 import hl.uv.Stream;
 #else
@@ -15,9 +18,15 @@ abstract Stream(js.node.net.Socket) {
 	}
 
 	public function readStart(callb:(data:Bytes) -> Void) {
+		// var bb = new BytesBuffer();
 		this.on("data", function(d:Buffer) {
+			// bb.add(d.hxToBytes());
 			callb(d.hxToBytes());
 		});
+		/*
+			this.on("end", function(d:Buffer) {
+				callb(bb.getBytes());
+		});*/
 	}
 
 	public function close() {
