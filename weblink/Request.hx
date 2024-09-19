@@ -4,6 +4,7 @@ import haxe.ds.StringMap;
 import haxe.http.HttpMethod;
 import haxe.io.Bytes;
 import weblink._internal.Server;
+import weblink._internal.ds.FieldMap;
 
 class Request {
 	public var cookies:List<Cookie>;
@@ -15,7 +16,7 @@ class Request {
 	public var url:String;
 
 	/** Contains values for parameters declared in the route matched, if there are any. **/
-	public var routeParams:Map<String, String>;
+	public var routeParams:FieldMap<String, String>;
 
 	public var ip:String;
 	public var baseUrl:String;
