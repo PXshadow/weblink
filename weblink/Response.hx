@@ -68,9 +68,15 @@ class Response {
 		send(if (pretty) Json.stringify(data, null, " ") else Json.stringify(data));
 	}
 
+	
+	public dynamic function onclose() {
+		
+	}
+
 	private function end() {
 		this.server = null;
 		final socket = this.socket;
+		onclose();
 		if (socket != null) {
 			if (this.close) {
 				socket.close();
