@@ -5,6 +5,7 @@ import haxe.http.HttpMethod;
 import haxe.io.Bytes;
 import sys.net.Host;
 import weblink._internal.Socket;
+import weblink._internal.ds.FieldMap;
 
 using Lambda;
 
@@ -29,8 +30,8 @@ class Loop {
 class Server extends SocketServer {
 	// var sockets:Array<Socket>;
 	var parent:Weblink;
-	var stream:Stream;
 
+	// var stream:Stream;
 	public var running:Bool = true;
 
 	var loop:Loop;
@@ -42,7 +43,7 @@ class Server extends SocketServer {
 		bind(new Host("0.0.0.0"), port);
 		noDelay(true);
 		listen(100, function() {
-			stream = accept();
+			var stream = accept();
 			var socket:Socket = cast stream;
 			var request:Request = null;
 			var done:Bool = false;
@@ -112,27 +113,26 @@ class Server extends SocketServer {
 			}
 		}
 
-		var execute=(handler)->{
+		var execute = (handler) -> {
 			try {
-
 				handler(request, response);
-			} catch(ex){
-				trace(ex,ex.stack);
-				//TODO check PRODUCTION env var
-				response.status=500;
-				response.send(ex.toString()+"\n"+ex.stack);
+			} catch (ex) {
+				trace(ex, ex.stack);
+				// TODO check PRODUCTION env var
+				response.status = 500;
+				response.send(ex.toString() + "\n" + ex.stack);
 			}
 		}
 
 		switch (parent.routeTree.tryGet(request.basePath, request.method)) {
 			case Found(handler, params):
-				request.routeParams = params;
+				request.routeParams = new FieldMap(params);
 				execute(handler);
-				
+
 			case _:
 				switch (parent.routeTree.tryGet(request.path, request.method)) {
 					case Found(handler, params):
-						request.routeParams = params;
+						request.routeParams = new FieldMap(params);
 						execute(handler);
 					case _:
 						@:privateAccess parent.pathNotFound(request, response);
