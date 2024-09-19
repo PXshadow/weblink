@@ -4,15 +4,23 @@ import haxe.ds.StringMap;
 import haxe.http.HttpMethod;
 import haxe.io.Bytes;
 import weblink._internal.Server;
+import weblink._internal.ds.FieldMap;
 
 class Request {
 	public var cookies:List<Cookie>;
+	// these exclude the query string
 	public var path:String;
+	// 1st segment only
 	public var basePath:String;
+	// this includes the query string
+	public var url:String;
+
 	/** Contains values for parameters declared in the route matched, if there are any. **/
-	public var routeParams:Map<String, String>;
+	public var routeParams:FieldMap<String, String>;
+
 	public var ip:String;
 	public var baseUrl:String;
+
 	public var headers:StringMap<String>;
 	public var text:String;
 	public var method:HttpMethod;
@@ -37,18 +45,23 @@ class Request {
 		var first = lines[0];
 		var index = first.indexOf("/");
 		path = first.substring(index, first.indexOf(" ", index + 1));
+		url = path; // preserve the url path;
+		var q = path.indexOf("?", 1);
+		if (q < 0)
+			q = path.length;
+		path = path.substring(0, q);
 		var index2 = path.indexOf("/", 1);
 		var index3 = path.indexOf("?", 1);
 		if (index2 == -1)
 			index2 = index3;
 		if (index2 != -1) {
-			basePath = path.substr(0,index2);
-		}else{
+			basePath = path.substr(0, index2);
+		} else {
 			basePath = path;
 		}
 		// trace(basePath);
 		// trace(path);
-		//trace(first.substring(0, index - 1).toUpperCase());
+		// trace(first.substring(0, index - 1).toUpperCase());
 		method = first.substring(0, index - 1).toUpperCase();
 		for (i in 0...lines.length - 1) {
 			if (lines[i] == "") {
@@ -143,11 +156,11 @@ class Request {
 		final r = ~/(?:\?|&|;)([^=]+)=([^&|;]+)/;
 		var obj = {};
 		var init:Bool = true;
-		var string:String = path;
+		var string:String = url;
 		while (r.match(string)) {
 			if (init) {
 				var pos = r.matchedPos().pos;
-				path = path.substring(0, pos);
+				url = url.substring(0, pos);
 				init = false;
 			}
 			// 0 entire, 1 name, 2 value

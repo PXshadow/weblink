@@ -4,3 +4,4 @@
 #-hl test.hl
 --js test.js
 -L hxnodejs
+-D allow_deasync
