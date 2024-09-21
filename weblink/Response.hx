@@ -6,8 +6,8 @@ import haxe.io.Encoding;
 import haxe.io.Eof;
 import weblink.Cookie;
 import weblink._internal.HttpStatusMessage;
-import weblink._internal.Server;
-import weblink._internal.Socket;
+import weblink._internal.TcpClient;
+import weblink._internal.WebServer;
 
 private typedef Write = (bytes:Bytes) -> Bytes;
 
@@ -18,20 +18,20 @@ class Response {
 	public var cookies:List<Cookie> = new List<Cookie>();
 	public var write:Null<Write>;
 
-	var socket:Null<Socket>;
-	var server:Null<Server>;
+	private var server:Null<WebServer>;
+	private var client:Null<TcpClient>;
 	var close:Bool = true;
 
-	private function new(socket:Socket, server:Server) {
-		this.socket = socket;
+	private function new(server:WebServer, client:TcpClient) {
 		this.server = server;
+		this.client = client;
 		contentType = "text/html";
 		status = OK;
 	}
 
 	public function sendBytes(bytes:Bytes) {
-		final socket = this.socket;
-		if (socket == null) {
+		final client = this.client;
+		if (client == null) {
 			throw "trying to push more data to a Response that has already been completed";
 		}
 
@@ -41,22 +41,20 @@ class Response {
 		}
 
 		try {
-			socket.writeString(sendHeaders(bytes.length).toString());
-			socket.writeBytes(bytes);
+			client.writeString(sendHeaders(bytes.length).toString());
+			client.writeBytes(bytes);
 		} catch (_:Eof) {
 			// The connection has already been closed, silently ignore
 		}
 
-		end();
+		this.end();
 	}
 
 	public inline function redirect(path:String) {
-		status = MovedPermanently;
-		headers = new List<Header>();
-		var string = initLine();
-		string += 'Location: $path\r\n\r\n';
-		socket.writeString(string);
-		end();
+		this.status = MovedPermanently;
+		this.headers = new List<Header>();
+		this.client.writeString(initLine() + 'Location: $path\r\n\r\n');
+		this.end();
 	}
 
 	public inline function send(data:String) {
@@ -65,12 +63,12 @@ class Response {
 
 	private function end() {
 		this.server = null;
-		final socket = this.socket;
-		if (socket != null) {
+		final client = this.client;
+		if (client != null) {
 			if (this.close) {
-				socket.close();
+				client.closeAsync();
 			}
-			this.socket = null;
+			this.client = null;
 		}
 	}
 

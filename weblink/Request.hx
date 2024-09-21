@@ -3,14 +3,17 @@ package weblink;
 import haxe.ds.StringMap;
 import haxe.http.HttpMethod;
 import haxe.io.Bytes;
-import weblink._internal.Server;
+import weblink._internal.TcpClient;
+import weblink._internal.WebServer;
 
 class Request {
 	public var cookies:List<Cookie>;
 	public var path:String;
 	public var basePath:String;
+
 	/** Contains values for parameters declared in the route matched, if there are any. **/
 	public var routeParams:Map<String, String>;
+
 	public var ip:String;
 	public var baseUrl:String;
 	public var headers:StringMap<String>;
@@ -42,13 +45,13 @@ class Request {
 		if (index2 == -1)
 			index2 = index3;
 		if (index2 != -1) {
-			basePath = path.substr(0,index2);
-		}else{
+			basePath = path.substr(0, index2);
+		} else {
 			basePath = path;
 		}
 		// trace(basePath);
 		// trace(path);
-		//trace(first.substring(0, index - 1).toUpperCase());
+		// trace(first.substring(0, index - 1).toUpperCase());
 		method = first.substring(0, index - 1).toUpperCase();
 		for (i in 0...lines.length - 1) {
 			if (lines[i] == "") {
@@ -157,8 +160,8 @@ class Request {
 		return obj;
 	}
 
-	private function response(parent:Server, socket):Response {
-		@:privateAccess var rep = new Response(socket, parent);
+	private function response(server:WebServer, client:TcpClient):Response {
+		@:privateAccess var rep = new Response(server, client);
 		var connection = headers.get("Connection");
 		if (connection != null)
 			@:privateAccess rep.close = connection == "close"; // assume keep alive HTTP 1.1
