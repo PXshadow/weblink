@@ -1,6 +1,5 @@
 package tests.security;
 
-import haxe.Http;
 import weblink.security.Jwks;
 
 using StringTools;
@@ -21,16 +20,14 @@ class TestJwks {
 		app.jwks(jwks);
 		app.listenBackground(2000);
 
-		var response = Http.requestUrl("http://localhost:2000/jwks"); // FIXME: Does not compile on Node.js
+		var response = "http://localhost:2000/jwks".GET();
 		var testValue = '{"keys":[]}';
 		if (response != testValue)
 			throw "/jwks: response data does not match: " + response + " data: " + testValue;
 
-		var http = new Http("http://localhost:2000/jwks");
-		http.setPostData(jsonWebKey);
-		http.request(false); // FIXME: On Node.js this does not block
+		final _ = "http://localhost:2000/jwks".POST(jsonWebKey);
 
-		var responseAfterPost = Http.requestUrl("http://localhost:2000/jwks"); // FIXME: Does not compile on Node.js
+		var responseAfterPost = "http://localhost:2000/jwks".GET();
 		var testValueGet = '{"keys":[' + removeSpaces(jsonWebKey) + ']}';
 		if (responseAfterPost != testValueGet)
 			throw "/jwks: response data does not match: " + responseAfterPost + " data: " + testValueGet;

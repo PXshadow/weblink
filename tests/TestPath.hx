@@ -1,5 +1,3 @@
-import haxe.Http;
-
 using TestingTools;
 
 class TestPath {
@@ -28,22 +26,22 @@ class TestPath {
 		});
 		app.listenBackground(2000);
 
-		var response = Http.requestUrl("http://localhost:2000/path"); // FIXME: Does not compile on Node.js
+		var response = "http://localhost:2000/path".GET();
 		if (response != data)
 			throw "/path: post response data does not match: " + response + " data: " + data;
-		var http = new Http("http://localhost:2000/path");
-		http.setPostData(data);
-		http.request(false); // FIXME: On Node.js this does not block
-		if (http.responseData != data + data)
-			throw "/path: post response data does not match: " + http.responseData + " data: " + data + data;
-		var response = Http.requestUrl("http://localhost:2000/another"); // FIXME: Does not compile on Node.js
+
+		var response = "http://localhost:2000/path".POST(data);
+		if (response != data + data)
+			throw "/path: post response data does not match: " + response + " data: " + data + data;
+
+		var response = "http://localhost:2000/another".GET();
 		if (response != data)
 			throw "/another: post response data does not match: " + response + " data: " + data;
 
 		try {
-			var nopath = Http.requestUrl("http://localhost:2000/notapath"); // FIXME: Does not compile on Node.js
+			final _ = "http://localhost:2000/notapath".GET();
 		} catch (e) {
-			if (e.message != "Http Error #404") {
+			if (!StringTools.contains(e.toString(), "404")) {
 				throw "/notapath should return a Status 404.";
 			}
 		}

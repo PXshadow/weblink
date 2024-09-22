@@ -1,6 +1,5 @@
 package security;
 
-import haxe.Http;
 import haxe.Json;
 import weblink.Request;
 import weblink.Response;
@@ -47,11 +46,10 @@ class TestEndpointExample {
 		var password = "secret";
 		var scope = "";
 
-		var http = new Http("http://localhost:2000/token");
-		http.setPostData('grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}');
-		http.request(false); // FIXME: On Node.js this does not block
+		var body = 'grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}';
+		var response = "http://localhost:2000/token".POST(body);
 
-		var data:{access_token:String, token_type:String} = Json.parse(http.responseData);
+		var data:{access_token:String, token_type:String} = Json.parse(response);
 		if (data.token_type != "bearer") {
 			throw 'bad token_type ${data.token_type}';
 		}
@@ -59,19 +57,21 @@ class TestEndpointExample {
 			throw 'empty access token';
 		}
 
-		var usersMeRequest = new Http("http://localhost:2000/users/me/");
-		usersMeRequest.setHeader("Authorization", 'bearer ${data.access_token}');
-		usersMeRequest.request(false); // FIXME: On Node.js this does not block
+		var responseMe = "http://localhost:2000/users/me/".request({
+			post: false,
+			headers: ["Authorization" => 'bearer ${data.access_token}'],
+		});
 		var testValueGet = '{"username":"johndoe","email":"johndoe@example.com","full_name":"John Doe","disabled":false}';
-		if (usersMeRequest.responseData != testValueGet)
-			throw "/users/me/: response data does not match: " + usersMeRequest.responseData + " data: " + testValueGet;
+		if (responseMe != testValueGet)
+			throw "/users/me/: response data does not match: " + responseMe + " data: " + testValueGet;
 
-		var usersMeItemsRequest = new Http("http://localhost:2000/users/me/items/");
-		usersMeItemsRequest.setHeader("Authorization", 'bearer ${data.access_token}');
-		usersMeItemsRequest.request(false); // FIXME: On Node.js this does not block
+		var responseItems = "http://localhost:2000/users/me/items/".request({
+			post: false,
+			headers: ["Authorization" => 'bearer ${data.access_token}'],
+		});
 		var testItemsGet = '[{"item_id":"Foo","owner":"johndoe"}]';
-		if (usersMeItemsRequest.responseData != testItemsGet)
-			throw "/users/me/: response data does not match: " + usersMeItemsRequest.responseData + " data: " + testItemsGet;
+		if (responseItems != testItemsGet)
+			throw "/users/me/: response data does not match: " + responseItems + " data: " + testItemsGet;
 
 		app.close();
 

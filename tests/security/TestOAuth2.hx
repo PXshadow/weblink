@@ -3,7 +3,6 @@ package tests.security;
 import haxe.Http;
 import haxe.Json;
 import weblink.security.CredentialsProvider;
-import weblink.security.OAuth.OAuthEndpoints;
 import weblink.security.OAuth;
 
 using TestingTools;
@@ -25,10 +24,10 @@ class TestOAuth2 {
 		var password = "secret";
 		var scope = "";
 
-		var http = new Http("http://localhost:2000/token");
-		http.setPostData('grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}');
-		http.request(false); // FIXME: On Node.js this does not block
-		var data:{access_token:String, token_type:String} = Json.parse(http.responseData);
+		final body = 'grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}';
+		final response = "http://localhost:2000/token".POST(body);
+
+		var data:{access_token:String, token_type:String} = Json.parse(response);
 		if (data.token_type != "bearer") {
 			trace('bad token_type ${data.token_type}');
 			throw 'bad token_type ${data.token_type}';

@@ -1,6 +1,7 @@
 tests-common.hxml
 
 --library hxnodejs
+--define haxeJSON
 --define js-es=6
 --define source-map-content
 --macro nullSafety("weblink._internal.nodejs", StrictThreaded)

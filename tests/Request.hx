@@ -1,10 +1,8 @@
-import haxe.Http;
-
 using TestingTools;
 
 class Request {
 	public static function main() {
-		Sys.println("start test");
+		trace("Starting Request Test");
 		var app = new weblink.Weblink();
 		var data = haxe.io.Bytes.ofString(Std.string(Std.random(10 * 1000))).toHex();
 		app.get("/", function(request, response) {
@@ -18,16 +16,15 @@ class Request {
 		});
 		app.listenBackground(2000);
 
-		var response = Http.requestUrl("http://localhost:2000"); // FIXME: Does not compile on Node.js
-		if (response != data)
-			throw "post response data does not match: " + response + " data: " + data;
-		var http = new Http("http://localhost:2000");
-		http.setPostData(data);
-		http.request(false); // FIXME: On Node.js this does not block
-		if (http.responseData != data + data)
-			throw "post response data does not match: " + http.responseData + " data: " + data + data;
-		app.close();
+		var responseGet = "http://localhost:2000".GET();
+		if (responseGet != data)
+			throw "post response data does not match: " + responseGet + " data: " + data;
 
+		var responsePost = "http://localhost:2000".POST(data);
+		if (responsePost != data + data)
+			throw "post response data does not match: " + responsePost + " data: " + data + data;
+
+		app.close();
 		trace("done");
 	}
 }

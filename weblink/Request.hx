@@ -92,7 +92,18 @@ class Request {
 			if (encoding.indexOf("gzip") > -1) {
 				trace("gzip not supported yet");
 			}
-			length = Std.parseInt(headers.get("Content-Length"));
+
+			// Workaround for Node tests
+			// TODO: Make all header comparisons case-insensitive
+			length = Std.parseInt({
+				var contentLength = headers.get("Content-Length");
+				if (contentLength == null) {
+					headers.get("content-length");
+				} else {
+					contentLength;
+				}
+			});
+
 			data = Bytes.alloc(length);
 			pos = 0;
 			// inital data

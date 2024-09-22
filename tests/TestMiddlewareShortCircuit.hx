@@ -1,6 +1,4 @@
 // For a middleware that does not cut the request short, see TestCompression.
-import haxe.Http;
-import haxe.io.Bytes;
 import weblink.Weblink;
 
 using TestingTools;
@@ -15,15 +13,11 @@ class TestMiddlewareShortCircuit {
 		});
 		app.listenBackground(2000);
 
-		final http = new Http("http://localhost:2000");
-		var response:Null<Bytes> = null;
-		http.onBytes = bytes -> response = bytes;
-		http.onError = e -> throw e;
-		http.request(false); // FIXME: On Node.js this does not block
-		if (response.toString() != "foo")
+		final response = "http://localhost:2000".GET();
+		if (response != "foo")
 			throw "not the response we expected";
-		app.close();
 
+		app.close();
 		trace("done");
 	}
 }

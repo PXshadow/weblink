@@ -22,7 +22,11 @@ jobs:
         run: npm i lix -g
       - name: Download Haxe and library dependencies
         run: npx lix download
-      - name: Build test suite for Hashlink target
-        run: npx haxe tests-hashlink.hxml
+      - name: Build test suite
+        run: npx haxe tests.hxml
       - name: Run test suite for Hashlink target
         run: hl test.hl
+      - name: Install Node.js dependencies
+        run: npm add deasync
+      - name: Run test suite for Node.js target
+        run: node test.js

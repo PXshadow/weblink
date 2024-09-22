@@ -18,19 +18,20 @@ class TestCompression {
 		}, Compression.deflateCompressionMiddleware);
 		app.listenBackground(2000);
 
+		var done = false;
 		var http = new Http("http://localhost:2000");
-		var response:Bytes = null;
-		http.onBytes = function(bytes) {
-			response = bytes;
+		http.onBytes = function(response) {
+			if (response.compare(compressedData) != 0)
+				throw "get response compressed data does not match: " + response + " compressedData: " + compressedData;
+			done = true;
 		}
-		http.onError = function(e) {
-			throw e;
-		}
-		http.request(false); // FIXME: On Node.js this does not block
-		if (response.compare(compressedData) != 0)
-			throw "get response compressed data does not match: " + response + " compressedData: " + compressedData;
-		app.close();
+		http.onError = e -> throw e;
+		http.request(false);
+		#if nodejs
+		sys.NodeSync.wait(() -> done);
+		#end
 
+		app.close();
 		trace("done");
 	}
 }
