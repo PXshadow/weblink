@@ -14,6 +14,8 @@ class WebServer {
 
 		#if (hl && !nolibuv)
 		this.tcpServer = new weblink._internal.hashlink.HashlinkTcpServer();
+		#elseif nodejs
+		this.tcpServer = new weblink._internal.nodejs.NodeTcpServer();
 		#else
 		#error "Weblink does not support your target yet"
 		#end

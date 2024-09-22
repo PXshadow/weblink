@@ -1,0 +1,5 @@
+tests-common.hxml
+
+--macro nullSafety("weblink._internal.hashlink", StrictThreaded)
+
+-hl test.hl

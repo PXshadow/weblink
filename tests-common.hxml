@@ -1,0 +1,3 @@
+-cp tests
+-main Test
+--macro nullSafety("weblink._internal.ds", StrictThreaded)

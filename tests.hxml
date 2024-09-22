@@ -1,5 +1,5 @@
--cp tests
--main Test
---macro nullSafety("weblink._internal.ds", StrictThreaded)
---macro nullSafety("weblink._internal.hashlink", StrictThreaded)
--hl test.hl
+--each
+
+tests-hashlink.hxml
+--next
+tests-nodejs.hxml
