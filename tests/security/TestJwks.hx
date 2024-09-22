@@ -4,6 +4,7 @@ import haxe.Http;
 import weblink.security.Jwks;
 
 using StringTools;
+using TestingTools;
 
 class TestJwks {
 	private static var jsonWebKey = '{
@@ -18,30 +19,23 @@ class TestJwks {
 		var app = new weblink.Weblink();
 		var jwks = new Jwks();
 		app.jwks(jwks);
-		app.listen(2000, false);
+		app.listenBackground(2000);
 
-		sys.thread.Thread.create(() -> {
-			var response = Http.requestUrl("http://localhost:2000/jwks");
-			var testValue = '{"keys":[]}';
-			if (response != testValue)
-				throw "/jwks: response data does not match: " + response + " data: " + testValue;
+		var response = Http.requestUrl("http://localhost:2000/jwks"); // FIXME: Does not compile on Node.js
+		var testValue = '{"keys":[]}';
+		if (response != testValue)
+			throw "/jwks: response data does not match: " + response + " data: " + testValue;
 
-			var http = new Http("http://localhost:2000/jwks");
-			http.setPostData(jsonWebKey);
-			http.request(false);
+		var http = new Http("http://localhost:2000/jwks");
+		http.setPostData(jsonWebKey);
+		http.request(false); // FIXME: On Node.js this does not block
 
-			var responseAfterPost = Http.requestUrl("http://localhost:2000/jwks");
-			var testValueGet = '{"keys":[' + removeSpaces(jsonWebKey) + ']}';
-			if (responseAfterPost != testValueGet)
-				throw "/jwks: response data does not match: " + responseAfterPost + " data: " + testValueGet;
+		var responseAfterPost = Http.requestUrl("http://localhost:2000/jwks"); // FIXME: Does not compile on Node.js
+		var testValueGet = '{"keys":[' + removeSpaces(jsonWebKey) + ']}';
+		if (responseAfterPost != testValueGet)
+			throw "/jwks: response data does not match: " + responseAfterPost + " data: " + testValueGet;
 
-			app.close();
-		});
-
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
-		}
+		app.close();
 		trace("done");
 	}
 

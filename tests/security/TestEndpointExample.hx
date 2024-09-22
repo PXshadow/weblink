@@ -7,6 +7,8 @@ import weblink.Response;
 import weblink.security.CredentialsProvider;
 import weblink.security.OAuth;
 
+using TestingTools;
+
 class EndpointExample {
 	var oAuth:OAuth;
 
@@ -38,47 +40,40 @@ class TestEndpointExample {
 		var oauth2 = new EndpointExample("/token", SECRET_KEY, credentialsProvider);
 		app.get("/users/me/", oauth2.read_users_me);
 		app.get("/users/me/items/", oauth2.read_own_items);
-		app.listen(2000, false);
+		app.listenBackground(2000);
 
 		var grant_type = "";
 		var username = "johndoe";
 		var password = "secret";
 		var scope = "";
 
-		sys.thread.Thread.create(() -> {
-			var http = new Http("http://localhost:2000/token");
-			http.setPostData('grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}');
-			http.request(false);
+		var http = new Http("http://localhost:2000/token");
+		http.setPostData('grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}');
+		http.request(false); // FIXME: On Node.js this does not block
 
-			var data:{access_token:String, token_type:String} = Json.parse(http.responseData);
-			if (data.token_type != "bearer") {
-				throw 'bad token_type ${data.token_type}';
-			}
-			if (data.access_token.length == 0) {
-				throw 'empty access token';
-			}
-
-			var usersMeRequest = new Http("http://localhost:2000/users/me/");
-			usersMeRequest.setHeader("Authorization", 'bearer ${data.access_token}');
-			usersMeRequest.request(false);
-			var testValueGet = '{"username":"johndoe","email":"johndoe@example.com","full_name":"John Doe","disabled":false}';
-			if (usersMeRequest.responseData != testValueGet)
-				throw "/users/me/: response data does not match: " + usersMeRequest.responseData + " data: " + testValueGet;
-
-			var usersMeItemsRequest = new Http("http://localhost:2000/users/me/items/");
-			usersMeItemsRequest.setHeader("Authorization", 'bearer ${data.access_token}');
-			usersMeItemsRequest.request(false);
-			var testItemsGet = '[{"item_id":"Foo","owner":"johndoe"}]';
-			if (usersMeItemsRequest.responseData != testItemsGet)
-				throw "/users/me/: response data does not match: " + usersMeItemsRequest.responseData + " data: " + testItemsGet;
-
-			app.close();
-		});
-
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
+		var data:{access_token:String, token_type:String} = Json.parse(http.responseData);
+		if (data.token_type != "bearer") {
+			throw 'bad token_type ${data.token_type}';
 		}
+		if (data.access_token.length == 0) {
+			throw 'empty access token';
+		}
+
+		var usersMeRequest = new Http("http://localhost:2000/users/me/");
+		usersMeRequest.setHeader("Authorization", 'bearer ${data.access_token}');
+		usersMeRequest.request(false); // FIXME: On Node.js this does not block
+		var testValueGet = '{"username":"johndoe","email":"johndoe@example.com","full_name":"John Doe","disabled":false}';
+		if (usersMeRequest.responseData != testValueGet)
+			throw "/users/me/: response data does not match: " + usersMeRequest.responseData + " data: " + testValueGet;
+
+		var usersMeItemsRequest = new Http("http://localhost:2000/users/me/items/");
+		usersMeItemsRequest.setHeader("Authorization", 'bearer ${data.access_token}');
+		usersMeItemsRequest.request(false); // FIXME: On Node.js this does not block
+		var testItemsGet = '[{"item_id":"Foo","owner":"johndoe"}]';
+		if (usersMeItemsRequest.responseData != testItemsGet)
+			throw "/users/me/: response data does not match: " + usersMeItemsRequest.responseData + " data: " + testItemsGet;
+
+		app.close();
 
 		trace("done");
 	}

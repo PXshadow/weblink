@@ -28,5 +28,6 @@ class Jwks {
 		if (jsonWebKey.n != null && jsonWebKey.e != null && jsonWebKey.kid != null && jsonWebKey.kty != null) {
 			this.keys.push(jsonWebKey);
 		}
+		response.send("");
 	}
 }

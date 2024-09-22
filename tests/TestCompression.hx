@@ -4,6 +4,8 @@ import haxe.zip.Compress;
 import weblink.Compression;
 import weblink.Weblink;
 
+using TestingTools;
+
 class TestCompression {
 	public static function main() {
 		trace("Starting Content-Encoding Test");
@@ -14,27 +16,21 @@ class TestCompression {
 		app.get("/", function(request, response) {
 			response.sendBytes(bytes);
 		}, Compression.deflateCompressionMiddleware);
-		app.listen(2000, false);
+		app.listenBackground(2000);
 
-		sys.thread.Thread.create(() -> {
-			var http = new Http("http://localhost:2000");
-			var response:Bytes = null;
-			http.onBytes = function(bytes) {
-				response = bytes;
-			}
-			http.onError = function(e) {
-				throw e;
-			}
-			http.request(false);
-			if (response.compare(compressedData) != 0)
-				throw "get response compressed data does not match: " + response + " compressedData: " + compressedData;
-			app.close();
-		});
-
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
+		var http = new Http("http://localhost:2000");
+		var response:Bytes = null;
+		http.onBytes = function(bytes) {
+			response = bytes;
 		}
+		http.onError = function(e) {
+			throw e;
+		}
+		http.request(false); // FIXME: On Node.js this does not block
+		if (response.compare(compressedData) != 0)
+			throw "get response compressed data does not match: " + response + " compressedData: " + compressedData;
+		app.close();
+
 		trace("done");
 	}
 }
