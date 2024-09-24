@@ -1,8 +1,7 @@
 // For a middleware that does not cut the request short, see TestCompression.
-import haxe.Http;
-import haxe.io.Bytes;
-import sys.thread.Thread;
 import weblink.Weblink;
+
+using TestingTools;
 
 class TestMiddlewareShortCircuit {
 	public static function main() {
@@ -12,23 +11,13 @@ class TestMiddlewareShortCircuit {
 		app.get("/", (_, _) -> throw "should not be called", next -> {
 			return (_, res) -> res.send("foo");
 		});
-		app.listen(2000, false);
+		app.listenBackground(2000);
 
-		Thread.create(() -> {
-			final http = new Http("http://localhost:2000");
-			var response:Null<Bytes> = null;
-			http.onBytes = bytes -> response = bytes;
-			http.onError = e -> throw e;
-			http.request(false);
-			if (response.toString() != "foo")
-				throw "not the response we expected";
-			app.close();
-		});
+		final response = "http://localhost:2000".GET();
+		if (response != "foo")
+			throw "not the response we expected";
 
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
-		}
+		app.close();
 		trace("done");
 	}
 }

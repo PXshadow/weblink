@@ -36,7 +36,11 @@ class Sign {
 		if (string1.length != string2.length) {
 			return false;
 		}
+		#if hl
 		var v = @:privateAccess string1.bytes.compare16(string2.bytes, string1.length);
 		return v == 0;
+		#else
+		return string1 == string2;
+		#end
 	}
 }

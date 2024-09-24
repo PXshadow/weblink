@@ -3,8 +3,9 @@ package tests.security;
 import haxe.Http;
 import haxe.Json;
 import weblink.security.CredentialsProvider;
-import weblink.security.OAuth.OAuthEndpoints;
 import weblink.security.OAuth;
+
+using TestingTools;
 
 class TestOAuth2 {
 	private static var SALT_EXAMPLE = "$2a$05$bvIG6Nmid91Mu9RcmmWZfO";
@@ -16,32 +17,26 @@ class TestOAuth2 {
 		var app = new weblink.Weblink();
 		var credentialsProvider = new CredentialsProvider();
 		app.oauth2(SECRET_KEY, credentialsProvider);
-		app.listen(2000, false);
+		app.listenBackground(2000);
 
 		var grant_type = "";
 		var username = "johndoe";
 		var password = "secret";
 		var scope = "";
 
-		sys.thread.Thread.create(() -> {
-			var http = new Http("http://localhost:2000/token");
-			http.setPostData('grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}');
-			http.request(false);
-			var data:{access_token:String, token_type:String} = Json.parse(http.responseData);
-			if (data.token_type != "bearer") {
-				trace('bad token_type ${data.token_type}');
-				throw 'bad token_type ${data.token_type}';
-			}
-			if (data.access_token.length == 0) {
-				throw 'empty access token';
-			}
-			app.close();
-		});
+		final body = 'grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}';
+		final response = "http://localhost:2000/token".POST(body);
 
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
+		var data:{access_token:String, token_type:String} = Json.parse(response);
+		if (data.token_type != "bearer") {
+			trace('bad token_type ${data.token_type}');
+			throw 'bad token_type ${data.token_type}';
 		}
+		if (data.access_token.length == 0) {
+			throw 'empty access token';
+		}
+		app.close();
+
 		trace("done");
 	}
 

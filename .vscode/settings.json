@@ -2,7 +2,7 @@
     "[haxe]": {
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-            "source.sortImports": true
+            "source.sortImports": "explicit"
         }
     },
     "testExplorer.codeLens": false

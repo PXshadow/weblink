@@ -1,8 +1,22 @@
-*.hl
 /*.hx
 *.n
-*.js
 bin
 *.cppia
 *.py
 *.txt
+
+# Hashlink
+*.hl
+
+# JS
+package.json
+package-lock.json
+node_modules/
+*.js
+*.js.map
+
+# Misc. tools
+.mise.toml
+flamegraph.html
+*.cpuprofile
+*.log
