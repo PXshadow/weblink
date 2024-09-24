@@ -25,17 +25,12 @@ class WebServer {
 
 	private function onConnection(client:TcpClient):Void {
 		var request:Null<Request> = null;
-		var done:Bool = false;
 
 		client.startReading(chunk -> @:privateAccess {
-			if (done) {
-				client.closeAsync();
-				return;
-			}
-
 			final data = switch chunk {
 				case Data(bytes): bytes;
 				case Eof:
+					request = null;
 					client.closeAsync();
 					return;
 			}
@@ -45,18 +40,18 @@ class WebServer {
 				request = new Request(lines);
 
 				if (request.pos >= request.length) {
-					done = true;
 					this.completeRequest(request, client);
+					request = null;
 					return;
 				}
-			} else if (!done) {
+			} else {
 				final length = request.length - request.pos < data.length ? request.length - request.pos : data.length;
 				request.data.blit(request.pos, data, 0, length);
 				request.pos += length;
 
 				if (request.pos >= request.length) {
-					done = true;
 					this.completeRequest(request, client);
+					request = null;
 					return;
 				}
 			}
@@ -64,15 +59,15 @@ class WebServer {
 			if (request.chunked) {
 				request.chunk(data.toString());
 				if (request.chunkSize == 0) {
-					done = true;
 					this.completeRequest(request, client);
+					request = null;
 					return;
 				}
 			}
 
 			if (request.method != Post && request.method != Put) {
-				done = true;
 				this.completeRequest(request, client);
+				request = null;
 			}
 		});
 	}

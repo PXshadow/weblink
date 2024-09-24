@@ -43,7 +43,7 @@ class Response {
 		try {
 			client.writeString(sendHeaders(bytes.length).toString());
 			client.writeBytes(bytes);
-		} catch (_:Eof) {
+		} catch (_) {
 			// The connection has already been closed, silently ignore
 		}
 
