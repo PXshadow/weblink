@@ -8,13 +8,15 @@ import weblink.Cookie;
 import weblink._internal.HttpStatusMessage;
 import weblink._internal.Server;
 import weblink._internal.Socket;
+import weblink.http.HeaderName;
+import weblink.http.HeaderValue;
 
 private typedef Write = (bytes:Bytes) -> Bytes;
 
 class Response {
 	public var status:HttpStatus;
 	public var contentType:String;
-	public var headers:Null<List<Header>>;
+	public var headers:List<{key:HeaderName, value:HeaderValue}>;
 	public var cookies:List<Cookie> = new List<Cookie>();
 	public var write:Null<Write>;
 
@@ -25,6 +27,7 @@ class Response {
 	private function new(socket:Socket, server:Server) {
 		this.socket = socket;
 		this.server = server;
+		this.headers = new List();
 		contentType = "text/html";
 		status = OK;
 	}
@@ -52,7 +55,6 @@ class Response {
 
 	public inline function redirect(path:String) {
 		status = MovedPermanently;
-		headers = new List<Header>();
 		var string = initLine();
 		string += 'Location: $path\r\n\r\n';
 		socket.writeString(string);
@@ -88,12 +90,12 @@ class Response {
 		for (cookie in cookies) {
 			string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
 		}
-		if (headers != null) {
-			for (header in headers) {
-				string.add(header.key + ": " + header.value + "\r\n");
-			}
-			headers = null;
+
+		for (header in headers) {
+			string.add(header.key + ": " + header.value + "\r\n");
 		}
+		headers = null;
+
 		string.add("\r\n");
 		return string;
 	}

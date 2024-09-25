@@ -21,7 +21,6 @@ class CredentialsProvider {
 	}
 
 	public function getUsersEndpoint(request:Request, response:Response):Void {
-		response.headers = new List<Header>();
 		response.headers.add({key: 'Content-Type', value: 'application/json'});
 		var data = {
 			users: getUserList()

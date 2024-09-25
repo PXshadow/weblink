@@ -1,9 +1,10 @@
 package weblink;
 
-import haxe.ds.StringMap;
 import haxe.http.HttpMethod;
 import haxe.io.Bytes;
 import weblink._internal.Server;
+import weblink.http.HeaderName;
+import weblink.http.HeaderValue;
 
 class Request {
 	public var cookies:List<Cookie>;
@@ -13,7 +14,7 @@ class Request {
 	public var routeParams:Map<String, String>;
 	public var ip:String;
 	public var baseUrl:String;
-	public var headers:StringMap<String>;
+	public var headers:Map<HeaderName, HeaderValue>;
 	public var text:String;
 	public var method:HttpMethod;
 	public var data:Bytes;
@@ -27,7 +28,7 @@ class Request {
 	var pos:Int;
 
 	private function new(lines:Array<String>) {
-		headers = new StringMap<String>();
+		this.headers = [];
 		data = null;
 		// for (line in lines)
 		//    Sys.println(line);

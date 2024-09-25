@@ -126,7 +126,6 @@ class Weblink {
 			request.path = request.basePath.substr(1);
 		var ext = request.path.extension();
 		var mime = weblink._internal.Mime.types.get(ext);
-		response.headers = new List<Header>();
 		if (_cors.length > 0)
 			response.headers.add({key: "Access-Control-Allow-Origin", value: _cors});
 		response.contentType = mime == null ? "text/plain" : mime;
