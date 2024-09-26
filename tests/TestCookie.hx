@@ -1,6 +1,7 @@
 import haxe.Http;
 import weblink.Cookie;
 import weblink.Weblink;
+import weblink.http.HeaderMap;
 
 class TestCookie {
 	public static function main() {
@@ -21,7 +22,7 @@ class TestCookie {
 			var http = new Http("http://localhost:2000");
 			http.onStatus = function(status) {
 				if (status == 200) {
-					var headers = http.responseHeaders;
+					final headers = HeaderMap.copyFrom(http.responseHeaders);
 					if (headers.get("Set-Cookie") != "foo=bar") {
 						throw 'Set-Cookie not foo=bar. got ${headers.get("Set-Cookie")}';
 					}

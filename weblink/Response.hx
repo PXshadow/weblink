@@ -8,15 +8,14 @@ import weblink.Cookie;
 import weblink._internal.HttpStatusMessage;
 import weblink._internal.Server;
 import weblink._internal.Socket;
-import weblink.http.HeaderName;
-import weblink.http.HeaderValue;
+import weblink.http.HeaderMap;
 
 private typedef Write = (bytes:Bytes) -> Bytes;
 
 class Response {
 	public var status:HttpStatus;
 	public var contentType:String;
-	public var headers:List<{key:HeaderName, value:HeaderValue}>;
+	public final headers:HeaderMap;
 	public var cookies:List<Cookie> = new List<Cookie>();
 	public var write:Null<Write>;
 
@@ -27,7 +26,7 @@ class Response {
 	private function new(socket:Socket, server:Server) {
 		this.socket = socket;
 		this.server = server;
-		this.headers = new List();
+		this.headers = new HeaderMap();
 		contentType = "text/html";
 		status = OK;
 	}
@@ -91,10 +90,14 @@ class Response {
 			string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
 		}
 
-		for (header in headers) {
-			string.add(header.key + ": " + header.value + "\r\n");
+		// TODO: unless a special case, consider joining values into one, comma-separated?
+		for (headerName => values in this.headers) {
+			for (headerValue in values) {
+				string.add(headerName + ": " + headerValue + "\r\n");
+			}
 		}
-		headers = null;
+
+		this.headers.clear();
 
 		string.add("\r\n");
 		return string;

@@ -12,7 +12,7 @@ class Jwks {
 	public function new() {}
 
 	public function jwksGetEndpoint(request:Request, response:Response):Void {
-		response.headers.add({key: 'Content-Type', value: 'application/json'});
+		response.headers.add(ContentType, "application/json");
 		var data = {
 			keys: this.keys
 		};
