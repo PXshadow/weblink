@@ -20,7 +20,7 @@ class Response {
 
 	var socket:Null<Socket>;
 	var server:Null<Server>;
-	var close:Bool = true;
+	var close:Bool = false; // default in HTTP/1.1
 
 	private function new(socket:Socket, server:Server) {
 		this.socket = socket;

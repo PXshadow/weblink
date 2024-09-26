@@ -1,17 +1,14 @@
 package weblink._internal;
 
 import haxe.MainLoop;
-import haxe.http.HttpMethod;
 import haxe.io.Bytes;
-import hl.uv.Loop.LoopRunMode;
 import hl.uv.Stream;
 import sys.net.Host;
 import weblink._internal.Socket;
 
 class Server extends SocketServer {
-	// var sockets:Array<Socket>;
+
 	var parent:Weblink;
-	var stream:Stream;
 	public var running:Bool = true;
 	var loop:hl.uv.Loop;
 
@@ -22,13 +19,13 @@ class Server extends SocketServer {
 		bind(new Host("0.0.0.0"), port);
 		noDelay(true);
 		listen(100, function() {
-			stream = accept();
-			var socket:Socket = cast stream;
-			var request:Request = null;
-			var done:Bool = false;
-			stream.readStart(function(data:Bytes) @:privateAccess {
-				if (done || data == null) {
-					// sockets.remove(socket);
+			final stream = accept();
+			final socket:Socket = cast stream;
+			var request:Null<Request> = null;
+
+			stream.readStart(function(data:Null<Bytes>) @:privateAccess {
+				if (data == null) { // EOF
+					request = null;
 					stream.close();
 					return;
 				}
@@ -38,18 +35,18 @@ class Server extends SocketServer {
 					request = new Request(lines);
 
 					if (request.pos >= request.length) {
-						done = true;
 						complete(request, socket);
+						request = null;
 						return;
 					}
-				} else if (!done) {
+				} else {
 					var length = request.length - request.pos < data.length ? request.length - request.pos : data.length;
 					request.data.blit(request.pos, data, 0, length);
 					request.pos += length;
 
 					if (request.pos >= request.length) {
-						done = true;
 						complete(request, socket);
+						request = null;
 						return;
 					}
 				}
@@ -57,18 +54,17 @@ class Server extends SocketServer {
 				if (request.chunked) {
 					request.chunk(data.toString());
 					if (request.chunkSize == 0) {
-						done = true;
 						complete(request, socket);
+						request = null;
 						return;
 					}
 				}
 
 				if (request.method != Post && request.method != Put) {
-					done = true;
 					complete(request, socket);
+					request = null;
 				}
 			});
-			// sockets.push(socket);
 		});
 		this.parent = parent;
 	}
