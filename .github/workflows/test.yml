@@ -1,26 +1,27 @@
 name: CI
 
-on: [push,pull_request]
+on: [push, pull_request]
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-      fail-fast: true
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-13 # -latest is arm64 only
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1 #nodejs
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '14'
-      - uses: pxshadow/setup-hashlink@v1.0.1 #hashlink
-
+          node-version: "lts/*"
+      - uses: pxshadow/setup-hashlink@v1.0.4
       - name: install lix
         run: npm i lix -g
       - name: run lix
         run: npx lix download
-
       - name: build test
         run: npx haxe tests.hxml
       - name: run test
