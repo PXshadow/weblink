@@ -1,5 +1,6 @@
 import weblink.http.HeaderMap;
 import weblink.http.HeaderName;
+import weblink.http.HeaderValue;
 
 class TestHeaders {
 	public static function main() {
@@ -21,6 +22,24 @@ class TestHeaders {
 			case NotAscii(_):
 			case _:
 				throw "'Øßą' should not be a valid header name";
+		}
+
+		switch (HeaderValue.validateString("hello world", true)) {
+			case Valid(_):
+			case _:
+				throw "'hello world' should be a valid header value";
+		}
+
+		switch (HeaderValue.validateString("Øß", false)) {
+			case Valid(_):
+			case _:
+				throw "'Øß' should be a valid header value in loose mode";
+		}
+
+		switch (HeaderValue.validateString("Øß", true)) {
+			case NotAscii(_):
+			case _:
+				throw "'Øß' should be an invalid header value in strict mode";
 		}
 
 		final map = new HeaderMap();

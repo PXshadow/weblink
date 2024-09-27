@@ -5,6 +5,9 @@ import haxe.io.Bytes;
 import weblink._internal.Server;
 import weblink.http.HeaderMap;
 import weblink.http.HeaderName;
+import weblink.http.HeaderValue;
+
+using StringTools;
 
 class Request {
 	public var cookies:List<Cookie>;
@@ -57,11 +60,17 @@ class Request {
 			}
 			index = lines[i].indexOf(":");
 
-			final result = HeaderName.tryNormalizeString(lines[i].substring(0, index));
-			switch (result) {
+			final left = lines[i].substring(0, index);
+			switch (HeaderName.tryNormalizeString(left)) {
 				case Valid(headerName):
-					final headerValue = lines[i].substring(index + 2);
-					this.headers.add(headerName, headerValue);
+					final right = lines[i].substring(index + 2).trim();
+					switch (HeaderValue.validateString(right, false)) {
+						case Valid(headerValue):
+							this.headers.add(headerName, headerValue);
+						case _:
+							// Silently ignore for now
+							// Idea: respond with 400 Bad Request immediately
+					}
 				case _:
 					// Silently ignore for now
 					// Idea: respond with 400 Bad Request immediately
