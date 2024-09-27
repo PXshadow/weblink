@@ -14,7 +14,7 @@ private typedef Write = (bytes:Bytes) -> Bytes;
 
 class Response {
 	public var status:HttpStatus;
-	public var contentType:String;
+	public var contentType(get, set):String;
 	public final headers:HeaderMap;
 	public var cookies:List<Cookie> = new List<Cookie>();
 	public var write:Null<Write>;
@@ -31,6 +31,15 @@ class Response {
 		status = OK;
 	}
 
+	public inline function set_contentType(value:String):String {
+		this.headers.set(ContentType, value);
+		return value;
+	}
+
+	public inline function get_contentType():String {
+		return this.headers.get(ContentType);
+	}
+
 	public function sendBytes(bytes:Bytes) {
 		final socket = this.socket;
 		if (socket == null) {
@@ -43,7 +52,7 @@ class Response {
 		}
 
 		try {
-			socket.writeString(sendHeaders(bytes.length).toString());
+			socket.writeString(collectHeaders(bytes.length).toString());
 			socket.writeBytes(bytes);
 		} catch (_:Eof) {
 			// The connection has already been closed, silently ignore
@@ -79,26 +88,47 @@ class Response {
 		return 'HTTP/1.1 $status ${HttpStatusMessage.fromCode(status)}\r\n';
 	}
 
-	public inline function sendHeaders(length:Int):StringBuf {
+	public inline function collectHeaders(length:Int):StringBuf {
 		var string = new StringBuf();
-		string.add(initLine()
-			+ // 'Acess-Control-Allow-Origin: *\r\n' +
-			'Connection: ${close ? "close" : "keep-alive"}\r\n'
-			+ 'Content-type: $contentType\r\n'
-			+ 'Content-length: $length\r\n');
+		string.add(this.initLine());
+
+		this.headers.add(Connection, close ? (cast "close") : (cast "keep-alive"));
+		this.headers.set(ContentLength, Std.string(length));
+
 		for (cookie in cookies) {
-			string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
+			this.headers.add(SetCookie, cookie.resolveToResponseString());
 		}
 
-		// TODO: unless a special case, consider joining values into one, comma-separated?
 		for (headerName => values in this.headers) {
-			for (headerValue in values) {
-				string.add(headerName + ": " + headerValue + "\r\n");
+			if (values.length <= 0) // Sanity check
+				continue;
+
+			if (headerName == SetCookie) {
+				for (headerValue in values) {
+					string.add(headerName);
+					string.add(": ");
+					string.add(headerValue);
+					string.add("\r\n");
+				}
+			} else {
+				string.add(headerName);
+				string.add(": ");
+				if (values.length == 1) {
+					string.add(values[0]);
+				} else if (headerName.allowsRawCommaSeparatedValues()) {
+					string.add(values.join(", "));
+				} else if (headerName.allowsRawSemicolonSeparatedValues()) {
+					string.add(values.join("; "));
+				} else if (headerName.doesNotAllowRepeats()) {
+					throw 'unique header "$headerName" has ${values.length} assigned values';
+				} else {
+					string.add(Lambda.map(values, v -> '"$v"').join(", "));
+				}
+				string.add("\r\n");
 			}
 		}
 
 		this.headers.clear();
-
 		string.add("\r\n");
 		return string;
 	}

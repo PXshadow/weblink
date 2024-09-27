@@ -28,12 +28,11 @@ class Request {
 
 	var chunkSize:Null<Int>;
 
-	public var encoding:Array<String> = [];
+	public final encoding:Array<String>;
 
 	var pos:Int;
 
 	private function new(lines:Array<String>) {
-		this.headers = new HeaderMap();
 		data = null;
 
 		if (lines.length == 0)
@@ -53,6 +52,8 @@ class Request {
 		}
 
 		method = first.substring(0, index - 1).toUpperCase();
+
+		final headers = this.headers = new HeaderMap();
 		for (i in 0...lines.length - 1) {
 			if (lines[i] == "") {
 				lines = lines.slice(i + 1);
@@ -62,37 +63,53 @@ class Request {
 
 			final left = lines[i].substring(0, index);
 			switch (HeaderName.tryNormalizeString(left)) {
-				case Valid(headerName):
+				case Valid(name):
 					final right = lines[i].substring(index + 2).trim();
 					switch (HeaderValue.validateString(right, false)) {
-						case Valid(headerValue):
-							this.headers.add(headerName, headerValue);
+						case Valid(value):
+							if (name.allowsRawCommaSeparatedValues()) {
+								for (subvalue in value.split(",").map(v -> v.trim())) {
+									headers.add(name, cast subvalue);
+								}
+							} else if (name.allowsRawSemicolonSeparatedValues()) {
+								for (subvalue in value.split(";").map(v -> v.trim())) {
+									headers.add(name, cast subvalue);
+								}
+							} else if (name.doesNotAllowRepeats() && headers.exists(name)) {
+								// Idea: respond with 400 Bad Request
+								headers.set(name, value);
+							} else {
+								headers.add(name, value);
+							}
 						case _:
-							// Silently ignore for now
+							// Silently ignore that the header value is invalid
 							// Idea: respond with 400 Bad Request immediately
 					}
 				case _:
-					// Silently ignore for now
+					// Silently ignore that the header name is invalid
 					// Idea: respond with 400 Bad Request immediately
 			}
 		}
-		baseUrl = headers.get("Host");
 
-		if (headers.exists("Cookie")) {
-			cookies = new List<Cookie>();
-			var string = headers.get("Cookie");
+		this.baseUrl = headers.get(Host);
 
-			for (sub in string.split(";")) {
-				string = StringTools.trim(sub);
-				// Split into the component Keyvalue pair for the cookie.
-				var keyVal = string.split("=");
-				cookies.add(new Cookie(keyVal[0], keyVal[1]));
+		this.cookies = new List<Cookie>();
+		final cookieValues = headers.getAll(Cookie);
+		if (cookieValues != null) {
+			for (value in cookieValues) {
+				final parts = value.split("=");
+				this.cookies.add(new Cookie(parts[0], parts[1]));
 			}
 		}
 
-		if (headers.exists("Transfer-Encoding")) {
-			encoding = headers.get("Transfer-Encoding").split(",");
+		this.encoding = [];
+		final encodingValues = headers.getAll(TransferEncoding);
+		if (encodingValues != null) {
+			for (value in encodingValues) {
+				this.encoding.push(value);
+			}
 		}
+
 		if (method == Post || method == Put) {
 			chunked = false;
 			if (encoding.indexOf("chunked") > -1) {

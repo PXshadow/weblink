@@ -10,6 +10,52 @@ using weblink._internal.CharTools;
 **/
 @:notNull
 enum abstract HeaderName(String) to String {
+	private static final ALLOW_RAW_COMMA_SEPARATED_VALUES = [
+		AIM => true,
+		Accept => true,
+		AcceptCharset => true,
+		AcceptEncoding => true,
+		AcceptLanguage => true,
+		AccessControlRequestHeaders => true,
+		CacheControl => true,
+		Connection => true,
+		ContentEncoding => true,
+		Expect => true,
+		Forwarded => true,
+		IfMatch => true,
+		IfNoneMatch => true,
+		Range => true,
+		TE => true,
+		Trailer => true,
+		TransferEncoding => true,
+		Upgrade => true,
+		Via => true,
+		Warning => true,
+	];
+
+	private static final ALLOW_RAW_SEMICOLON_SEPARATED_VALUES = [ContentType => true, Cookie => true, Prefer => true];
+
+	private static final DO_NOT_ALLOW_REPEATS = [
+		AcceptDatetime => true,
+		AccessControlRequestMethod => true,
+		Authorization => true,
+		ContentLength => true,
+		ContentMD5 => true,
+		Date => true,
+		From => true,
+		Host => true,
+		Http2Settings => true,
+		IfModifiedSince => true,
+		IfRange => true,
+		IfUnmodifiedSince => true,
+		MaxForwards => true,
+		Origin => true,
+		Pragma => true,
+		ProxyAuthorization => true,
+		Referer => true,
+		UserAgent => true,
+	];
+
 	public var Accept = "accept";
 	public var AcceptCH = "accept-ch";
 	public var AcceptCharset = "accept-charset";
@@ -108,6 +154,30 @@ enum abstract HeaderName(String) to String {
 	public var XRequestId = "x-request-id";
 	public var XUACompatible = "x-ua-compatible";
 	public var XXSSProtection = "x-xss-protection";
+
+	/**
+		Returns true if this header name allows raw comma-separated values.
+	**/
+	@:pure
+	public inline function allowsRawCommaSeparatedValues():Bool {
+		return HeaderName.ALLOW_RAW_COMMA_SEPARATED_VALUES.get(this) == true;
+	}
+
+	/**
+		Returns true if this header name allows raw semicolon-separated values.
+	**/
+	@:pure
+	public inline function allowsRawSemicolonSeparatedValues():Bool {
+		return HeaderName.ALLOW_RAW_SEMICOLON_SEPARATED_VALUES.get(this) == true;
+	}
+
+	/**
+		Returns true if this header name is known to not allow repeats.
+	**/
+	@:pure
+	public inline function doesNotAllowRepeats():Bool {
+		return HeaderName.DO_NOT_ALLOW_REPEATS.get(this) == true;
+	}
 
 	/**
 		Tries to normalize a string into a header field name.
