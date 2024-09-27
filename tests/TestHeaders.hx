@@ -1,8 +1,27 @@
 import weblink.http.HeaderMap;
+import weblink.http.HeaderName;
 
 class TestHeaders {
 	public static function main() {
 		trace("Starting Headers Test");
+
+		switch (HeaderName.tryNormalizeString("Foo")) {
+			case Valid(_):
+			case _:
+				throw "Foo should be a valid header name";
+		}
+
+		switch (HeaderName.tryNormalizeString("hello world")) {
+			case ForbiddenChar(_):
+			case _:
+				throw "'hello world' should not be a valid header name";
+		}
+
+		switch (HeaderName.tryNormalizeString("Øßą")) {
+			case NotAscii(_):
+			case _:
+				throw "'Øßą' should not be a valid header name";
+		}
 
 		final map = new HeaderMap();
 		if (Lambda.count(map) != 0)

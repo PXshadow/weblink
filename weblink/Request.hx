@@ -4,13 +4,16 @@ import haxe.http.HttpMethod;
 import haxe.io.Bytes;
 import weblink._internal.Server;
 import weblink.http.HeaderMap;
+import weblink.http.HeaderName;
 
 class Request {
 	public var cookies:List<Cookie>;
 	public var path:String;
 	public var basePath:String;
+
 	/** Contains values for parameters declared in the route matched, if there are any. **/
 	public var routeParams:Map<String, String>;
+
 	public var ip:String;
 	public var baseUrl:String;
 	public final headers:HeaderMap;
@@ -29,8 +32,7 @@ class Request {
 	private function new(lines:Array<String>) {
 		this.headers = new HeaderMap();
 		data = null;
-		// for (line in lines)
-		//    Sys.println(line);
+
 		if (lines.length == 0)
 			return;
 		var index = 0;
@@ -42,13 +44,11 @@ class Request {
 		if (index2 == -1)
 			index2 = index3;
 		if (index2 != -1) {
-			basePath = path.substr(0,index2);
-		}else{
+			basePath = path.substr(0, index2);
+		} else {
 			basePath = path;
 		}
-		// trace(basePath);
-		// trace(path);
-		//trace(first.substring(0, index - 1).toUpperCase());
+
 		method = first.substring(0, index - 1).toUpperCase();
 		for (i in 0...lines.length - 1) {
 			if (lines[i] == "") {
@@ -56,7 +56,16 @@ class Request {
 				break;
 			}
 			index = lines[i].indexOf(":");
-			headers.set(lines[i].substring(0, index), lines[i].substring(index + 2));
+
+			final result = HeaderName.tryNormalizeString(lines[i].substring(0, index));
+			switch (result) {
+				case Valid(headerName):
+					final headerValue = lines[i].substring(index + 2);
+					this.headers.add(headerName, headerValue);
+				case _:
+					// Silently ignore for now
+					// Idea: respond with 400 Bad Request immediately
+			}
 		}
 		baseUrl = headers.get("Host");
 

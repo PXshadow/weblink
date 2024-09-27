@@ -1,8 +1,12 @@
 package weblink.http;
 
+import haxe.io.Bytes;
+
+using StringTools;
+using weblink._internal.CharTools;
+
 /**
-	A field key of an HTTP header.
-	Currently no validation is performed on the key.
+	A field name of an HTTP header.
 **/
 @:notNull
 enum abstract HeaderName(String) to String {
@@ -105,10 +109,48 @@ enum abstract HeaderName(String) to String {
 	public var XUACompatible = "x-ua-compatible";
 	public var XXSSProtection = "x-xss-protection";
 
-	@:from
-	public static function normalize(s:String):HeaderName {
-		// TODO check if charset is valid (typically US-ASCII, rarely ISO-8859-1)
-		// TODO check if name contains control, separator or other disallowed characters
-		return cast s.toLowerCase();
+	/**
+		Tries to normalize a string into a header field name.
+	**/
+	public static function tryNormalizeString(str:String):NormalizeResult {
+		final len = str.length;
+		if (len == 0)
+			return Empty;
+		final bytes = Bytes.alloc(len); // 1 byte per character
+		for (i in 0...len) {
+			final char = str.fastCodeAt(i); // code unit, range [0, 65535]
+			if (!char.isAscii()) // notably Latin1 was never allowed in names
+				return NotAscii(char);
+			if (!char.isAllowedInHeaderName()) // separator or control char
+				return ForbiddenChar(char);
+			bytes.set(i, char.toLowerCase());
+		}
+		return Valid(cast bytes.toString()); // UTF-8 is a superset of ASCII
 	}
+
+	/**
+		Normalizes a string into a header field name or throws.
+	**/
+	@:from
+	public static function normalizeOrThrow(str:String):HeaderName {
+		switch (tryNormalizeString(str)) {
+			case Valid(name):
+				return name;
+			case NotAscii(codeUnit):
+				final ch = String.fromCharCode(codeUnit);
+				throw '"$str" cannot be used as a header name because "$ch" cannot fit in US-ASCII';
+			case ForbiddenChar(codeUnit):
+				final ch = String.fromCharCode(codeUnit);
+				throw 'char \'$ch\' of "$str" cannot be used in a header name';
+			case Empty:
+				throw "header names cannot be empty";
+		}
+	}
+}
+
+enum NormalizeResult {
+	Valid(name:HeaderName);
+	NotAscii(codeUnit:Int);
+	ForbiddenChar(codeUnit:Int);
+	Empty;
 }
