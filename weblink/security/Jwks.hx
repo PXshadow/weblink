@@ -1,7 +1,5 @@
 package weblink.security;
 
-import haxe.io.Bytes;
-
 typedef Jwk = {n:String, e:String, kid:String, kty:String};
 
 /*
@@ -14,8 +12,7 @@ class Jwks {
 	public function new() {}
 
 	public function jwksGetEndpoint(request:Request, response:Response):Void {
-		response.headers = new List<Header>();
-		response.headers.add({key: 'Content-Type', value: 'application/json'});
+		response.headers.add(ContentType, "application/json");
 		var data = {
 			keys: this.keys
 		};

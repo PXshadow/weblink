@@ -8,13 +8,14 @@ import weblink.Cookie;
 import weblink._internal.HttpStatusMessage;
 import weblink._internal.Server;
 import weblink._internal.Socket;
+import weblink.http.HeaderMap;
 
 private typedef Write = (bytes:Bytes) -> Bytes;
 
 class Response {
 	public var status:HttpStatus;
-	public var contentType:String;
-	public var headers:Null<List<Header>>;
+	public var contentType(get, set):String;
+	public final headers:HeaderMap;
 	public var cookies:List<Cookie> = new List<Cookie>();
 	public var write:Null<Write>;
 
@@ -25,8 +26,18 @@ class Response {
 	private function new(socket:Socket, server:Server) {
 		this.socket = socket;
 		this.server = server;
+		this.headers = new HeaderMap();
 		contentType = "text/html";
 		status = OK;
+	}
+
+	public inline function set_contentType(value:String):String {
+		this.headers.set(ContentType, value);
+		return value;
+	}
+
+	public inline function get_contentType():String {
+		return this.headers.get(ContentType);
 	}
 
 	public function sendBytes(bytes:Bytes) {
@@ -41,7 +52,7 @@ class Response {
 		}
 
 		try {
-			socket.writeString(sendHeaders(bytes.length).toString());
+			socket.writeString(collectHeaders(bytes.length).toString());
 			socket.writeBytes(bytes);
 		} catch (_:Eof) {
 			// The connection has already been closed, silently ignore
@@ -52,7 +63,6 @@ class Response {
 
 	public inline function redirect(path:String) {
 		status = MovedPermanently;
-		headers = new List<Header>();
 		var string = initLine();
 		string += 'Location: $path\r\n\r\n';
 		socket.writeString(string);
@@ -78,22 +88,47 @@ class Response {
 		return 'HTTP/1.1 $status ${HttpStatusMessage.fromCode(status)}\r\n';
 	}
 
-	public inline function sendHeaders(length:Int):StringBuf {
+	public inline function collectHeaders(length:Int):StringBuf {
 		var string = new StringBuf();
-		string.add(initLine()
-			+ // 'Acess-Control-Allow-Origin: *\r\n' +
-			'Connection: ${close ? "close" : "keep-alive"}\r\n'
-			+ 'Content-type: $contentType\r\n'
-			+ 'Content-length: $length\r\n');
+		string.add(this.initLine());
+
+		this.headers.add(Connection, close ? (cast "close") : (cast "keep-alive"));
+		this.headers.set(ContentLength, Std.string(length));
+
 		for (cookie in cookies) {
-			string.add("Set-Cookie: " + cookie.resolveToResponseString() + "\r\n");
+			this.headers.add(SetCookie, cookie.resolveToResponseString());
 		}
-		if (headers != null) {
-			for (header in headers) {
-				string.add(header.key + ": " + header.value + "\r\n");
+
+		for (headerName => values in this.headers) {
+			if (values.length <= 0) // Sanity check
+				continue;
+
+			if (headerName == SetCookie) {
+				for (headerValue in values) {
+					string.add(headerName);
+					string.add(": ");
+					string.add(headerValue);
+					string.add("\r\n");
+				}
+			} else {
+				string.add(headerName);
+				string.add(": ");
+				if (values.length == 1) {
+					string.add(values[0]);
+				} else if (headerName.allowsRawCommaSeparatedValues()) {
+					string.add(values.join(", "));
+				} else if (headerName.allowsRawSemicolonSeparatedValues()) {
+					string.add(values.join("; "));
+				} else if (headerName.doesNotAllowRepeats()) {
+					throw 'unique header "$headerName" has ${values.length} assigned values';
+				} else {
+					string.add(Lambda.map(values, v -> '"$v"').join(", "));
+				}
+				string.add("\r\n");
 			}
-			headers = null;
 		}
+
+		this.headers.clear();
 		string.add("\r\n");
 		return string;
 	}

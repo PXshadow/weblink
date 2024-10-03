@@ -16,6 +16,7 @@ class Test {
 		TestCookie.main();
 		TestCredentialsProvider.main();
 		TestEndpointExample.main();
+		TestHeaders.main();
 		TestJwks.main();
 		TestJwt.main();
 		TestOAuth2.main();

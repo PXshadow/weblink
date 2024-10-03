@@ -1,19 +1,25 @@
 package weblink;
 
-import haxe.ds.StringMap;
 import haxe.http.HttpMethod;
 import haxe.io.Bytes;
 import weblink._internal.Server;
+import weblink.http.HeaderMap;
+import weblink.http.HeaderName;
+import weblink.http.HeaderValue;
+
+using StringTools;
 
 class Request {
 	public var cookies:List<Cookie>;
 	public var path:String;
 	public var basePath:String;
+
 	/** Contains values for parameters declared in the route matched, if there are any. **/
 	public var routeParams:Map<String, String>;
+
 	public var ip:String;
 	public var baseUrl:String;
-	public var headers:StringMap<String>;
+	public final headers:HeaderMap;
 	public var text:String;
 	public var method:HttpMethod;
 	public var data:Bytes;
@@ -22,15 +28,13 @@ class Request {
 
 	var chunkSize:Null<Int>;
 
-	public var encoding:Array<String> = [];
+	public final encoding:Array<String>;
 
 	var pos:Int;
 
 	private function new(lines:Array<String>) {
-		headers = new StringMap<String>();
 		data = null;
-		// for (line in lines)
-		//    Sys.println(line);
+
 		if (lines.length == 0)
 			return;
 		var index = 0;
@@ -42,39 +46,70 @@ class Request {
 		if (index2 == -1)
 			index2 = index3;
 		if (index2 != -1) {
-			basePath = path.substr(0,index2);
-		}else{
+			basePath = path.substr(0, index2);
+		} else {
 			basePath = path;
 		}
-		// trace(basePath);
-		// trace(path);
-		//trace(first.substring(0, index - 1).toUpperCase());
+
 		method = first.substring(0, index - 1).toUpperCase();
+
+		final headers = this.headers = new HeaderMap();
 		for (i in 0...lines.length - 1) {
 			if (lines[i] == "") {
 				lines = lines.slice(i + 1);
 				break;
 			}
 			index = lines[i].indexOf(":");
-			headers.set(lines[i].substring(0, index), lines[i].substring(index + 2));
-		}
-		baseUrl = headers.get("Host");
 
-		if (headers.exists("Cookie")) {
-			cookies = new List<Cookie>();
-			var string = headers.get("Cookie");
-
-			for (sub in string.split(";")) {
-				string = StringTools.trim(sub);
-				// Split into the component Keyvalue pair for the cookie.
-				var keyVal = string.split("=");
-				cookies.add(new Cookie(keyVal[0], keyVal[1]));
+			final left = lines[i].substring(0, index);
+			switch (HeaderName.tryNormalizeString(left)) {
+				case Valid(name):
+					final right = lines[i].substring(index + 2).trim();
+					switch (HeaderValue.validateString(right, false)) {
+						case Valid(value):
+							if (name.allowsRawCommaSeparatedValues()) {
+								for (subvalue in value.split(",").map(v -> v.trim())) {
+									headers.add(name, cast subvalue);
+								}
+							} else if (name.allowsRawSemicolonSeparatedValues()) {
+								for (subvalue in value.split(";").map(v -> v.trim())) {
+									headers.add(name, cast subvalue);
+								}
+							} else if (name.doesNotAllowRepeats() && headers.exists(name)) {
+								// Idea: respond with 400 Bad Request
+								headers.set(name, value);
+							} else {
+								headers.add(name, value);
+							}
+						case _:
+							// Silently ignore that the header value is invalid
+							// Idea: respond with 400 Bad Request immediately
+					}
+				case _:
+					// Silently ignore that the header name is invalid
+					// Idea: respond with 400 Bad Request immediately
 			}
 		}
 
-		if (headers.exists("Transfer-Encoding")) {
-			encoding = headers.get("Transfer-Encoding").split(",");
+		this.baseUrl = headers.get(Host);
+
+		this.cookies = new List<Cookie>();
+		final cookieValues = headers.getAll(Cookie);
+		if (cookieValues != null) {
+			for (value in cookieValues) {
+				final parts = value.split("=");
+				this.cookies.add(new Cookie(parts[0], parts[1]));
+			}
 		}
+
+		this.encoding = [];
+		final encodingValues = headers.getAll(TransferEncoding);
+		if (encodingValues != null) {
+			for (value in encodingValues) {
+				this.encoding.push(value);
+			}
+		}
+
 		if (method == Post || method == Put) {
 			chunked = false;
 			if (encoding.indexOf("chunked") > -1) {

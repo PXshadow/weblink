@@ -21,12 +21,13 @@ class CredentialsProvider {
 	}
 
 	public function getUsersEndpoint(request:Request, response:Response):Void {
-		response.headers = new List<Header>();
-		response.headers.add({key: 'Content-Type', value: 'application/json'});
+		response.headers.add(ContentType, "application/json");
 		var data = {
 			users: getUserList()
 		};
+
 		var jsonString = haxe.Json.stringify(data);
+
 		response.send(jsonString);
 	}
 
