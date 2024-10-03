@@ -99,7 +99,7 @@ class Server extends SocketServer {
 	public function update(blocking:Bool = true) {
 		do {
 			@:privateAccess MainLoop.tick(); // for timers
-			loop.run(NoWait);
+			loop.run(Default);
 		} while (running && blocking);
 	}
 
