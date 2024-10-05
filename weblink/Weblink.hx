@@ -1,6 +1,7 @@
 package weblink;
 
 import haxe.http.HttpMethod;
+import sys.net.Host;
 import weblink.Handler;
 import weblink._internal.Server;
 import weblink._internal.ds.RadixTree;
@@ -12,7 +13,9 @@ import weblink.security.OAuth.OAuthEndpoints;
 using haxe.io.Path;
 
 class Weblink {
+	/** The internal web server. **/
 	public var server:Null<Server>;
+
 	public var routeTree:RadixTree<Handler>;
 
 	private var middlewareToChain:Array<Middleware> = [];
@@ -85,8 +88,9 @@ class Weblink {
 
 	public function listen(port:Int, blocking:Bool = true) {
 		this.pathNotFound = chainMiddleware(this.pathNotFound);
-		server = new Server(port, this);
-		server.update(blocking);
+
+		final server = this.server = new Server(this);
+		server.start(new Host("0.0.0.0"), port, blocking ? BlockUntilClosed : BlockUntilReady);
 	}
 
 	public function serve(path:String = "", dir:String = "", cors:String = "*") {
@@ -97,7 +101,7 @@ class Weblink {
 	}
 
 	public function close() {
-		server.close();
+		this.server.closeSync();
 	}
 
 	/**
