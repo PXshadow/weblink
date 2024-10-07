@@ -1,6 +1,6 @@
 package weblink.security;
 
-import weblink.HTTPException;
+import weblink.exceptions.HttpException;
 import weblink.security.BCryptPassword;
 import weblink.security.Jwt;
 import weblink.security.OAuth2PasswordBearer;
@@ -64,7 +64,7 @@ class OAuth {
 	}
 
 	private function get_current_user(token:String):UserInDB {
-		var credentials_exception = new HTTPException('401 Could not validate credentials {"WWW-Authenticate": "Bearer"}');
+		var credentials_exception = new HttpException(401, 'Could not validate credentials {"WWW-Authenticate": "Bearer"}');
 		var token_data;
 		try {
 			var payload = Jwt.decode(token, this.secret_key, ALGORITHM);
@@ -86,11 +86,11 @@ class OAuth {
 	public function get_current_active_user(request):User {
 		var token = this.oauth2_scheme.call(request);
 		if (token == null) {
-			throw new HTTPException('401 Bad Token {"WWW-Authenticate": "Bearer"}');
+			throw new HttpException(401, 'Bad Token {"WWW-Authenticate": "Bearer"}');
 		}
 		var current_user:UserInDB = this.get_current_user(token);
 		if (current_user.disabled) {
-			throw new HTTPException("400 Inactive user");
+			throw new HttpException(400, "Inactive user");
 		}
 		// We don't want to return hashed_password for security reasons
 		return Projection.convert(current_user, User);
@@ -153,7 +153,7 @@ class OAuthEndpoints {
 		var form_data = OAuth2PasswordRequestForm.validate(data);
 		var user = this.oAuth.authenticate_user(form_data.username, form_data.password);
 		if (user == null) {
-			throw new HTTPException('401 Incorrect username or password {"WWW-Authenticate": "Bearer"}');
+			throw new HttpException(401, 'Incorrect username or password {"WWW-Authenticate": "Bearer"}');
 		}
 		return Jwt.create_access_token({sub: user.username}, this.oAuth.secret_key, OAuth.ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES);
 	}

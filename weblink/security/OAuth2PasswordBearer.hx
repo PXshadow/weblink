@@ -1,6 +1,6 @@
 package weblink.security;
 
-import weblink.HTTPException;
+import weblink.exceptions.HttpException;
 
 class OAuth2 {
 	var scheme_name:Null<String>;
@@ -15,7 +15,7 @@ class OAuth2 {
 		var authorization:String = request.headers.get("Authorization");
 		if (authorization == null) {
 			if (this.auth_error) {
-				throw new HTTPException("403 Not authenticated");
+				throw new HttpException(403, "Not authenticated");
 			} else {
 				return null;
 			}
@@ -43,7 +43,7 @@ class OAuth2PasswordBearer extends OAuth2 {
 		var param = authSplit[1];
 		if (authorization == null || scheme.toLowerCase() != "bearer") {
 			if (this.auth_error) {
-				throw new HTTPException('401 Not authenticated {"WWW-Authenticate": "Bearer"}');
+				throw new HttpException(401, 'Not authenticated {"WWW-Authenticate": "Bearer"}');
 			} else {
 				return null;
 			}
