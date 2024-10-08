@@ -1,4 +1,5 @@
 -cp tests
 -main Test
+--define no-deprecation-warnings
 --macro nullSafety("weblink._internal.ds", StrictThreaded)
 -hl test.hl

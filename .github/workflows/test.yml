@@ -26,3 +26,4 @@ jobs:
         run: npx haxe tests.hxml
       - name: run test
         run: hl test.hl
+        timeout-minutes: 3
