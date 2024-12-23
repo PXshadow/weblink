@@ -150,14 +150,14 @@ class Weblink {
 
 	private inline function _serveEvent(request:Request, response:Response):Bool {
 		if (request.path.charAt(0) == "/")
-			request.path = request.basePath.substr(1);
+			request.path = request.path.substr(1);
 		var ext = request.path.extension();
 		var mime = weblink._internal.Mime.types.get(ext);
 		response.headers = new List<Header>();
 		if (cors.length > 0)
 			response.headers.add({key: "Access-Control-Allow-Origin", value: cors});
 		response.contentType = mime == null ? "text/plain" : mime;
-		var path = Path.join([_dir, request.basePath.substr(_path.length)]).normalize();
+		var path = Path.join([_dir, request.path.substr(_path.length-1)]).normalize();
 		if (path == "")
 			path = ".";
 		if (sys.FileSystem.exists(path)) {

@@ -143,7 +143,7 @@ class Server extends SocketServer {
 	public function update(blocking:Bool = true) {
 		do {
 			@:privateAccess MainLoop.tick(); // for timers
-			#if js
+			#if (js||cs)
 			var NoWait = 0;
 			#end
 			loop.run(NoWait);
