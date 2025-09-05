@@ -4,7 +4,7 @@
 
 WebLink
 ======
-Linking [Hashlink](https://github.com/HaxeFoundation/hashlink) and other [targets](#targets) to the role of a webserver.
+Linking [Hashlink](https://github.com/HaxeFoundation/hashlink) to the role of a webserver.
 
 ```haxe
 class Main {
@@ -40,9 +40,8 @@ Include in build.hxml
 ```
 
 # Targets
-*requires libuv (asys in the future)*
+* requires libuv
 * hashlink (uses libuv)
-* more targets in the future using [asys](https://github.com/HaxeFoundation/haxe-evolution/blob/7371439061fcb30f60f21369701a5e599dfa802c/proposals/0010-asys.md)
 
 # Benchmark
 
@@ -89,40 +88,4 @@ Supported
 
 1. Fork
 2. Clone and setup
-3. Configure VSCode :
-
-    Add that in .vscode/launch.json : 
-    
-    ```
-    {
-        // Use IntelliSense to learn about possible attributes.
-        // Hover to view descriptions of existing attributes.
-        // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-        "version": "0.2.0",
-        "configurations": [
-            {
-                "name": "HashLink (launch)",
-                "request": "launch",
-                "type": "hl",
-                "cwd": "${workspaceFolder}",
-                "preLaunchTask": {
-                    "type": "haxe",
-                    "args": "active configuration"
-                }
-            },
-            {
-                "name": "HashLink (attach)",
-                "request": "attach",
-                "port": 6112,
-                "type": "hl",
-                "cwd": "${workspaceFolder}",
-                "preLaunchTask": {
-                    "type": "haxe",
-                    "args": "active configuration"
-                }
-            }
-        ]
-    }
-    ```
-4. Develop (and press F5 to launch hashlink)
-5. Pull request
+5. Create a pull request with your changes
