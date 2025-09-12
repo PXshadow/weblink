@@ -1,4 +1,4 @@
 {
-  "version": "5.0.0-preview.1",
+  "version": "nightly",
   "resolveLibs": "scoped"
 }
