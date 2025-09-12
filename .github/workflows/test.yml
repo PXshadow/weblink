@@ -10,7 +10,7 @@ jobs:
       fail-fast: true
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: pxshadow/setup-hashlink@v1.0.1 #hashlink
 
       - name: install lix
