@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pxshadow/setup-hashlink@v1.0.1 #hashlink
+      - uses: cedx/setup-hashlink@v6.2.0
 
       - name: install lix
         run: npm i lix -g
