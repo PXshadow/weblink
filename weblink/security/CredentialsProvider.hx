@@ -21,8 +21,7 @@ class CredentialsProvider {
 	}
 
 	public function getUsersEndpoint(request:Request, response:Response):Void {
-		response.headers = new List<Header>();
-		response.headers.add({key: 'Content-Type', value: 'application/json'});
+		response.header().add('Content-Type', 'application/json');
 		var data = {
 			users: getUserList()
 		};
@@ -39,7 +38,7 @@ class CredentialsProvider {
 	}
 
 	public function postUsersEndpoint(request:Request, response:Response):Void {
-		var post_data:String = request.data.toString();
+		var post_data:String = request.data();
 		var data:Map<String, String> = PostData.parse(post_data);
 		var username:String = data.get("username");
 		var full_name:String = data.get("full_name");

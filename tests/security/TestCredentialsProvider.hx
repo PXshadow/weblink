@@ -12,19 +12,16 @@ class TestCredentialsProvider {
 		app.users(credentialsProvider);
 		app.listen(2000, false);
 
-		sys.thread.Thread.create(() -> {
+		sys.thread.Thread.createWithEventLoop(() -> {
 			var response = Http.requestUrl("http://localhost:2000/users");
 			var testValue = '{"users":[{"username":"johndoe","email":"johndoe@example.com","full_name":"John Doe","disabled":false}]}';
 			if (response != testValue)
-				trace("/users: response data does not match: " + response + " data: " + testValue);
+				throw("/users: response data does not match: " + response + " data: " + testValue);
 
 			app.close();
 		});
 
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
-		}
+		app.server.update();
 		trace("done");
 	}
 }

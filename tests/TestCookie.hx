@@ -12,12 +12,12 @@ class TestCookie {
 		app = new Weblink();
 
 		app.get("/", function(request, response) {
-			response.cookies.add(new Cookie("foo", "bar"));
+			response.addCookie("foo", "bar");
 			response.send(data);
 		});
 		app.listen(2000, false);
 
-		sys.thread.Thread.create(() -> {
+		sys.thread.Thread.createWithEventLoop(() -> {
 			var http = new Http("http://localhost:2000");
 			http.onStatus = function(status) {
 				if (status == 200) {
@@ -32,10 +32,7 @@ class TestCookie {
 			app.close();
 		});
 
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
-		}
+		app.server.update();
 		trace("done");
 	}
 }

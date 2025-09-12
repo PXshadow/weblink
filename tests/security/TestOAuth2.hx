@@ -23,7 +23,7 @@ class TestOAuth2 {
 		var password = "secret";
 		var scope = "";
 
-		sys.thread.Thread.create(() -> {
+		sys.thread.Thread.createWithEventLoop(() -> {
 			var http = new Http("http://localhost:2000/token");
 			http.setPostData('grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}');
 			http.request(false);
@@ -37,11 +37,7 @@ class TestOAuth2 {
 			}
 			app.close();
 		});
-
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
-		}
+		app.server.update();
 		trace("done");
 	}
 
@@ -85,8 +81,7 @@ class TestOAuth2 {
 			return;
 		}
 
-		trace("Should have throw");
-		trace("done");
+		throw ("Should have throw");
 	}
 
 	public static function main() {

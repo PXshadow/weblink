@@ -8,7 +8,7 @@ class TestSign {
 		var signature = Sign.sign(payload, "secret", Sign.HASH_METHOD);
 		var isOk = Sign.verify(payload, signature, "secret", Sign.HASH_METHOD);
 		if (!isOk) {
-			trace("Error");
+			throw("Error");
 		}
 	}
 
@@ -17,7 +17,7 @@ class TestSign {
 		var signature = Sign.sign(payload, "secret", Sign.HASH_METHOD);
 		var isOk = Sign.verify(payload, signature, "another", Sign.HASH_METHOD);
 		if (isOk) {
-			trace("Error");
+			throw("Error");
 		}
 	}
 
@@ -28,7 +28,7 @@ class TestSign {
 		} catch (e) {
 			return;
 		}
-		trace("Error");
+		throw("Error");
 	}
 
 	public static function main() {

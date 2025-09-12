@@ -1,3 +1,3 @@
 package weblink;
 
-class HTTPException extends haxe.Exception {}
+typedef HTTPException = haxe.Exception

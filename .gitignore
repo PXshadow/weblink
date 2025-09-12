@@ -6,3 +6,6 @@ bin
 *.cppia
 *.py
 *.txt
+.DS_Store
+golibs
+golibs2

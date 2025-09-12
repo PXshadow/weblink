@@ -141,7 +141,7 @@ class OAuthEndpoints {
 	}
 
 	public function login_for_access_token(request:Request, response:Response) {
-		var post_data:String = request.data.toString();
+		var post_data:String = request.data();
 		var access_token = user_data_for_access_token(post_data);
 		var data = {"access_token": access_token, "token_type": "bearer"};
 		var jsonString = haxe.Json.stringify(data);

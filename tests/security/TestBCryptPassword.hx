@@ -9,7 +9,7 @@ class TestBCryptPassword {
 		var hashed_password = BCryptPassword.get_password_hash(password);
 		var isOk = BCryptPassword.verify_password(password, hashed_password);
 		if (!isOk) {
-			trace('Bad hashed_password ${hashed_password}');
+			throw('Bad hashed_password ${hashed_password}');
 		}
 		trace("done");
 	}

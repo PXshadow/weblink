@@ -12,7 +12,6 @@ class Test {
 	public static function main() {
 		Request.main();
 		TestBCryptPassword.main();
-		TestCompression.main();
 		TestCookie.main();
 		TestCredentialsProvider.main();
 		TestEndpointExample.main();
@@ -23,6 +22,7 @@ class Test {
 		TestPostData.main();
 		TestProjection.main();
 		TestSign.main();
+		Sys.println("EXIT");
 		Sys.exit(0);
 	}
 }

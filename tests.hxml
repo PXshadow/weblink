@@ -1,3 +1,8 @@
 -cp tests
 -main Test
+--hxb-lib go2hx.zip
+-D hl-no-opt
+-D no-opt
+-D no-inline
+-w -WStaticInitOrder
 -hl test.hl

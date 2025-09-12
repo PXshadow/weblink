@@ -45,7 +45,7 @@ class TestEndpointExample {
 		var password = "secret";
 		var scope = "";
 
-		sys.thread.Thread.create(() -> {
+		sys.thread.Thread.createWithEventLoop(() -> {
 			var http = new Http("http://localhost:2000/token");
 			http.setPostData('grant_type=${grant_type}&username=${username}&password=${password}&scope=${scope}');
 			http.request(false);
@@ -75,10 +75,7 @@ class TestEndpointExample {
 			app.close();
 		});
 
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
-		}
+		app.server.update();
 
 		trace("done");
 	}

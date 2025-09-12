@@ -12,7 +12,7 @@ class OAuth2 {
 	}
 
 	public function call(request:Request):Null<String> {
-		var authorization:String = request.headers.get("Authorization");
+		var authorization:String = request.header.get("Authorization");
 		if (authorization == null) {
 			if (this.auth_error) {
 				throw new HTTPException("403 Not authenticated");
@@ -37,7 +37,7 @@ class OAuth2PasswordBearer extends OAuth2 {
 	}
 
 	public override function call(request:Request):Null<String> {
-		var authorization:String = request.headers.get("Authorization");
+		var authorization:String = request.header.get("Authorization");
 		var authSplit = authorization.split(" ");
 		var scheme = authSplit[0];
 		var param = authSplit[1];

@@ -4,21 +4,28 @@ import weblink._internal.Server;
 import weblink.security.CredentialsProvider;
 import weblink.security.Jwks;
 import weblink.security.OAuth.OAuthEndpoints;
+import haxe.io.Path;
 
-using haxe.io.Path;
+#if !haxe5
+#error "Version 2 requires Haxe 5"
+#end
 
 private typedef Func = (request:Request, response:Response) -> Void;
 
 class Weblink {
 	public var server:Server;
 	public var routes:Map<String, Map<String, Array<Func>>> = [];
-
+	
+	public function redirect(request:Request, response:Response, path:String) {
+		// DONE
+		weblink._internal.ServeMux.redirect(response,request,path);
+	}
 	/**
 		Default anonymous function defining the behavior should a requested route not exist.
 		Suggested that application implementers use set_pathNotFound() to define custom 404 status behavior/pages
 	**/
 	public var pathNotFound(null, set):Func = function(request:Request, response:Response):Void {
-		response.status = 404;
+		response.writeHeader(404);
 		response.send("Error 404, Route Not found.");
 	}
 
@@ -55,7 +62,6 @@ class Weblink {
 
 	public function listen(port:Int, blocking:Bool = true) {
 		server = new Server(port, this);
-		server.update(blocking);
 	}
 
 	public function serve(path:String = "", dir:String = "", cors:String = "*") {
@@ -91,25 +97,25 @@ class Weblink {
 	}
 
 	private inline function _postEvent(request:Request, response:Response) {
-		var route = this.routes[request.path];
+		var route = this.routes[request.uRL.path];
 		route.get("POST")[0](request, response);
 	}
 
 	private inline function _putEvent(request:Request, response:Response) {
-		var route = this.routes[request.path];
+		var route = this.routes[request.uRL.path];
 		route.get("PUT")[0](request, response);
 	}
 
 	private function _getEvent(request:Request, response:Response) {
-		if (_serve && response.status == OK && request.path.indexOf(_path) == 0) {
+		if (_serve && request.uRL.path.indexOf(_path) == 0) {
 			if (_serveEvent(request, response))
 				return;
 		}
 		var routeList = [];
-		if (this.routes.exists(request.basePath)) {
-			routeList = this.routes[request.basePath].get("GET");
-		} else if (this.routes.exists(request.path)) {
-			routeList = this.routes[request.path].get("GET");
+		if (this.routes.exists(request.uRL.host)) {
+			routeList = this.routes[request.uRL.host].get("GET");
+		} else if (this.routes.exists(request.uRL.path)) {
+			routeList = this.routes[request.uRL.path].get("GET");
 		} else { // Don't have the route, don't process it and escape.
 			this.pathNotFound(request, response);
 			return;
@@ -123,29 +129,29 @@ class Weblink {
 	}
 
 	private inline function _serveEvent(request:Request, response:Response):Bool {
-		if (request.path.charAt(0) == "/")
-			request.path = request.basePath.substr(1);
-		var ext = request.path.extension();
+		//if (request.uRL.path.charAt(0) == "/")
+		//	request.uRL.path = request.uRL.path.substr(1);
+		var ext = Path.extension(request.uRL.path);
 		var mime = weblink._internal.Mime.types.get(ext);
-		response.headers = new List<Header>();
+		//response.headers = new List<Header>();
 		if (_cors.length > 0)
-			response.headers.add({key: "Access-Control-Allow-Origin", value: _cors});
-		response.contentType = mime == null ? "text/plain" : mime;
-		var path = Path.join([_dir, request.basePath.substr(_path.length)]).normalize();
+			response.header().add("Access-Control-Allow-Origin", _cors);
+		response.contentType(mime == null ? "text/plain" : mime);
+		var path = Path.normalize(Path.join([_dir, request.uRL.host.substr(_path.length)]));
 		if (path == "")
 			path = ".";
 		if (sys.FileSystem.exists(path)) {
 			if (sys.FileSystem.isDirectory(path)) {
-				response.contentType = "text/html";
+				response.contentType("text/html");
 				path = Path.join([path, "index.html"]);
 				if (sys.FileSystem.exists(path)) {
-					response.sendBytes(sys.io.File.getBytes(path));
+					response.write(sys.io.File.getBytes(path));
 					return true;
 				}
 				trace('file not found $path');
 				return false;
 			} else {
-				response.sendBytes(sys.io.File.getBytes(path));
+				response.write(sys.io.File.getBytes(path));
 				return true;
 			}
 		} else {
@@ -155,7 +161,7 @@ class Weblink {
 	}
 
 	private inline function _headEvent(request:Request, response:Response) {
-		var route = this.routes[request.path];
+		var route = this.routes[request.uRL.path];
 		route.get("HEAD")[0](request, response);
 	}
 

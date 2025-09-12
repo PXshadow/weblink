@@ -20,7 +20,7 @@ class TestJwks {
 		app.jwks(jwks);
 		app.listen(2000, false);
 
-		sys.thread.Thread.create(() -> {
+		sys.thread.Thread.createWithEventLoop(() -> {
 			var response = Http.requestUrl("http://localhost:2000/jwks");
 			var testValue = '{"keys":[]}';
 			if (response != testValue)
@@ -38,11 +38,7 @@ class TestJwks {
 			app.close();
 		});
 
-		while (app.server.running) {
-			app.server.update(false);
-			Sys.sleep(0.2);
-		}
-		trace("done");
+		app.server.update();
 	}
 
 	private static function removeSpaces(str:String):String {

@@ -14,7 +14,7 @@ class TestJwt {
 			trace("done");
 			return;
 		}
-		trace("Error: Jwt create should throw on bad algorithm");
+		throw("Error: Jwt create should throw on bad algorithm");
 	}
 
 	private static function jwtDecodeBadSecret() {
@@ -30,7 +30,7 @@ class TestJwt {
 			trace("done");
 			return;
 		}
-		trace("Error: Jwt decode should throw on bad secret");
+		throw("Error: Jwt decode should throw on bad secret");
 	}
 
 	private static function jwtDecodeBadAlgorithm() {
@@ -46,7 +46,7 @@ class TestJwt {
 			trace("done");
 			return;
 		}
-		trace("Error: Jwt decode should throw on bad algorithm");
+		throw("Error: Jwt decode should throw on bad algorithm");
 	}
 
 	public static function ok() {
@@ -61,10 +61,10 @@ class TestJwt {
 		}
 		var token = Jwt.decode(access_token, secret, algorithm);
 		if (token.sub != username)
-			trace("Error: bad token sub");
+			throw("Error: bad token sub");
 		// arbitrary date: 2022-08-20T10:22:04+00:00 (UTC)
 		if (token.exp <= 1660986830)
-			trace("Error: bad token exp");
+			throw("Error: bad token exp");
 
 		trace("done");
 	}
