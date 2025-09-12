@@ -10,7 +10,7 @@ import tests.security.TestSign;
 
 class Test {
 	public static function main() {
-		Request.main();
+		TestRequest.main();
 		TestBCryptPassword.main();
 		TestCookie.main();
 		TestCredentialsProvider.main();

@@ -1,6 +1,6 @@
 import haxe.Http;
 
-class Request {
+class TestRequest {
 	public static function main() {
 		Sys.println("start test");
 		var app = new weblink.Weblink();
