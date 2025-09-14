@@ -2,29 +2,26 @@
     <img alt="weblink" src="weblink.svg" height="180px" align="center" />
 </p>
 
-WebLink
+WebLink Version 2
 ======
 Linking [Hashlink](https://github.com/HaxeFoundation/hashlink) and other [targets](#targets) to the role of a webserver.
 
 ```haxe
-class Main {
-    function main() {
-        var app = new weblink.Weblink();
-        app.get(function(request,response)
-        {
-            response.send("HELLO WORLD");
-        });
-        app.listen(2000);
-    }
+function main() {
+    var app = new weblink.Weblink();
+    app.get(function(request,response)
+    {
+        response.send("HELLO WORLD");
+    });
+    app.listen(2000);
 }
 ```
 
 Features
 ====
-* Uses [libuv](https://github.com/libuv/libuv)
-* Minimal and concise with express lib in mind
-* No dependencies, and easy integration
-* Extremely fast, roughly 4x faster than Fastify with big data, and 2x with small [Benchmark](#benchmark)
+* Uses [net/http](https://pkg.go.dev/net/http) from Go compiled into Haxe using [go2hx](https://github.com/go2hx/go2hx).
+* Minimal and concise with express library in mind.
+* No dependencies, and easy integration.
 
 
 Getting Started
@@ -32,7 +29,7 @@ Getting Started
 
 Install dev version:
 ```
-haxelib git weblink https://github.com/PXshadow/weblink
+haxelib git weblink https://github.com/PXshadow/weblink v2
 ```
 Include in build.hxml
 ```
@@ -40,13 +37,10 @@ Include in build.hxml
 ```
 
 # Targets
-*requires libuv (asys in the future)*
-* hashlink (uses libuv)
-* more targets in the future using [asys](https://github.com/HaxeFoundation/haxe-evolution/blob/7371439061fcb30f60f21369701a5e599dfa802c/proposals/0010-asys.md)
+* hashlink
+* interp maybe
 
 # Benchmark
-
-[<p align="left"><img src ="benchmark.png"></p>](https://github.com/PXshadow/weblinkBenchmark)
 
 Supported
 ====
@@ -57,13 +51,9 @@ Supported
     - [x] HEAD
     - [x] PUT
 - [encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Compression)
-    - [ ] gzip
-    - [ ] compress
-    - [x] deflate
-    - [ ] br
+    - automatically handled
 - caching
-    - [ ] age
-    - [ ] expires
+    - automatically handled by last modified using file server
 - security
     - [x] [cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
     - [ ] [cors](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
@@ -82,47 +72,11 @@ Supported
     - [x] bytes (png image for instance)
     - [x] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
     - [x] serve web content (files ex: html/images/sounds)
-    - [ ] connection public ip (haxe 4.2)
     - [x] projection (a type with certain attributes of another type, useful to send only some data)
 
 # Contributing
 
 1. Fork
 2. Clone and setup
-3. Configure VSCode :
-
-    Add that in .vscode/launch.json : 
-    
-    ```
-    {
-        // Use IntelliSense to learn about possible attributes.
-        // Hover to view descriptions of existing attributes.
-        // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-        "version": "0.2.0",
-        "configurations": [
-            {
-                "name": "HashLink (launch)",
-                "request": "launch",
-                "type": "hl",
-                "cwd": "${workspaceFolder}",
-                "preLaunchTask": {
-                    "type": "haxe",
-                    "args": "active configuration"
-                }
-            },
-            {
-                "name": "HashLink (attach)",
-                "request": "attach",
-                "port": 6112,
-                "type": "hl",
-                "cwd": "${workspaceFolder}",
-                "preLaunchTask": {
-                    "type": "haxe",
-                    "args": "active configuration"
-                }
-            }
-        ]
-    }
-    ```
-4. Develop (and press F5 to launch hashlink)
+4. Make changes and run, tests.hxml and hl test.hl
 5. Pull request
