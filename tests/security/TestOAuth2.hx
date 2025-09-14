@@ -35,7 +35,7 @@ class TestOAuth2 {
 			if (data.access_token.length == 0) {
 				throw 'empty access token';
 			}
-			app.close();
+			Sys.exit(0);
 		});
 		app.server.update();
 		trace("done");

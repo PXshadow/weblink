@@ -21,5 +21,15 @@ jobs:
 
       - name: build test
         run: npx haxe tests.hxml
-      - name: run test
-        run: hl test.hl
+      - run: hl test.hl 0
+      - run: hl test.hl 1
+      - run: hl test.hl 2
+      - run: hl test.hl 3
+      - run: hl test.hl 4
+      - run: hl test.hl 5
+      - run: hl test.hl 6
+      - run: hl test.hl 7
+      - run: hl test.hl 8
+      - run: hl test.hl 9
+      - run: hl test.hl 10
+      - run: hl test.hl 11

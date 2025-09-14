@@ -47,7 +47,7 @@ class TestPath {
 					throw "/notapath should return a Status 404.";
 				}
 			}
-			app.close();
+			Sys.exit(0);
 		});
 		app.server.update();
 		trace("done");

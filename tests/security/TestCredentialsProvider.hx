@@ -18,7 +18,7 @@ class TestCredentialsProvider {
 			if (response != testValue)
 				throw("/users: response data does not match: " + response + " data: " + testValue);
 
-			app.close();
+			Sys.exit(0);
 		});
 
 		app.server.update();

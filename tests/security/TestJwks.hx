@@ -35,7 +35,7 @@ class TestJwks {
 			if (responseAfterPost != testValueGet)
 				throw "/jwks: response data does not match: " + responseAfterPost + " data: " + testValueGet;
 
-			app.close();
+			Sys.exit(0);
 		});
 
 		app.server.update();

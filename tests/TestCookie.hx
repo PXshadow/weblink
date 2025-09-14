@@ -29,7 +29,7 @@ class TestCookie {
 			};
 			http.request(false);
 
-			app.close();
+			Sys.exit(0);
 		});
 
 		app.server.update();

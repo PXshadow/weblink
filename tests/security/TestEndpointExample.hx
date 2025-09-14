@@ -72,7 +72,7 @@ class TestEndpointExample {
 			if (usersMeItemsRequest.responseData != testItemsGet)
 				throw "/users/me/: response data does not match: " + usersMeItemsRequest.responseData + " data: " + testItemsGet;
 
-			app.close();
+			Sys.exit(0);
 		});
 
 		app.server.update();

@@ -30,7 +30,7 @@ class TestRequest {
 				Sys.exit(1);
 			}
 			trace("close!");
-			app.close();
+			Sys.exit(0);
 		});
 		trace("start update");
 		app.server.update();
