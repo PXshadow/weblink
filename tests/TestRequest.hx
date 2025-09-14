@@ -19,6 +19,7 @@ class TestRequest {
 		trace("after listen");
 
 		sys.thread.Thread.createWithEventLoop(() -> {
+			Sys.sleep(1);
 			var response = Http.requestUrl("http://localhost:2000");
 			if (response != data)
 				throw "post response data does not match: " + response + " data: " + data;
