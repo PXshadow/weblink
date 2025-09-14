@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-      - uses: pxshadow/setup-hashlink@v1.0.4
+      - uses: cedx/setup-hashlink@v6.2.0
       - name: install lix
         run: npm i lix -g
       - name: run lix
