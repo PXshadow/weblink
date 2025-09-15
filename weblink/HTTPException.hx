@@ -1,3 +1,5 @@
 package weblink;
 
-typedef HTTPException = haxe.Exception
+// extending haxe.Exception causes the issue
+class HTTPException extends haxe.Exception {}
+

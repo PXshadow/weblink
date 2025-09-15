@@ -1,3 +1,4 @@
 -cp tests
 -main Test
+extraParams.hxml
 -hl test.hl
