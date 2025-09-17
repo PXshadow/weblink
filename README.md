@@ -27,6 +27,8 @@ Features
 Getting Started
 ====
 
+Requires Haxe 5.0 preview 1, no other version works (better forwards compatibility hopefully for the next Haxe preview edition)
+
 Install dev version:
 ```
 haxelib git weblink https://github.com/PXshadow/weblink v2
@@ -37,8 +39,8 @@ Include in build.hxml
 ```
 
 # Targets
-* hashlink
-* interp maybe
+* Hashlink
+* Interp (untested but may work?)
 
 # Benchmark
 
@@ -65,7 +67,7 @@ Supported
         - [ ] [Token revocation](https://oauth.net/2/token-revocation/)
         - [ ] [Metadata](https://oauth.net/2/authorization-server-metadata/)
     - [x] Bcrypt Passwords
-    - [ ] ssl (haxe 4.2)
+    - [ ] ssl (Haxe 4.2)
     - [ ] [cert bot](https://certbot.eff.org/) easy integration
 - extra
     - [x] [content type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type)
@@ -73,6 +75,7 @@ Supported
     - [x] [redirects](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
     - [x] serve web content (files ex: html/images/sounds)
     - [x] projection (a type with certain attributes of another type, useful to send only some data)
+    - [ ] [hxcoro](https://github.com/haxeFoundation/hxcoro) usage
 
 # Contributing
 
