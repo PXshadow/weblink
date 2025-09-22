@@ -19,7 +19,7 @@ function main() {
 
 Features
 ====
-* Uses [net/http](https://pkg.go.dev/net/http) from Go compiled into Haxe using [go2hx](https://github.com/go2hx/go2hx).
+* Uses [net/http](https://pkg.go.dev/net/http) from Go's stdlib, compiled into Haxe code using [go2hx](https://github.com/go2hx/go2hx).
 * Minimal and concise with express library in mind.
 * No dependencies, and easy integration.
 
