@@ -13,6 +13,7 @@ class TestCredentialsProvider {
 		app.listen(2000, false);
 
 		sys.thread.Thread.createWithEventLoop(() -> {
+			Sys.sleep(1);
 			var response = Http.requestUrl("http://localhost:2000/users");
 			var testValue = '{"users":[{"username":"johndoe","email":"johndoe@example.com","full_name":"John Doe","disabled":false}]}';
 			if (response != testValue)
