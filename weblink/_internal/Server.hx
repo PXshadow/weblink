@@ -7,10 +7,12 @@ import haxe.io.Bytes;
 import hl.Gc;
 import hl.uv.Loop;
 import sys.net.Host;
-import sys.thread.EventLoop;
 import sys.thread.Lock;
 import sys.thread.Thread;
 import weblink._internal.Socket;
+#if !haxe5
+import sys.thread.EventLoop;
+#end
 
 class Server extends SocketServer {
 	/**
@@ -104,25 +106,36 @@ class Server extends SocketServer {
 			final currentThread = Thread.current();
 			final events = currentThread.events;
 			try {
+				#if !haxe5
 				events.progress();
+				#else
+				events.loopOnce();
+				#end
 			} catch (e) {
 				trace(e.details());
 			}
-
 			Gc.blocking(true);
 		});
 
 		// Create a thread to run the server's event loop
 		final serverThread = this.serverThread = Thread.create(() -> {
 			final currentThread = Thread.current();
-			#if (haxe_ver >= 4.3) currentThread.setName("TCP listener"); #end
+			#if (haxe_ver >= 4.3)
+			#if !haxe5
+			currentThread.setName("TCP listener");
+			#else
+			currentThread.name = "TCP listener";
+			#end
+			#end
 
 			// If we simply called Thread.createWithEventLoop up here,
 			// the thread would not stop after this block,
 			// but would continue running through the registered events.
 			// This way, setting Haxe's loop manually,
 			// our thread is guaranteed to eventually terminate.
+			#if !haxe5
 			Reflect.setProperty(currentThread, "events", new EventLoop());
+			#end
 
 			this.running = true;
 			if (model == BlockUntilReady) {
@@ -145,8 +158,13 @@ class Server extends SocketServer {
 		if (port != 0) {
 			// Of course, this trick only works if we know the port:
 			// unfortunately, we cannot get it from a running server
+			#if !haxe5
 			Thread.createWithEventLoop(() -> {
 				#if (haxe_ver >= 4.3) Thread.current().setName("Timer sch. hack"); #end
+			#else
+			Thread.create(() -> {
+				Thread.current().name = "Timer sch. hack";
+			#end
 				final host = new Host("127.0.0.1");
 				final timer = this.helperTimer = new Timer(557);
 				timer.run = () -> {
@@ -158,9 +176,10 @@ class Server extends SocketServer {
 		}
 
 		// Prevent the process from exiting
+		#if !haxe5
 		final mainThread = @:privateAccess EntryPoint.mainThread;
 		mainThread.events.promise();
-
+		#end
 		// Wait until the server is either ready or closed
 		lock.wait();
 	}
@@ -223,16 +242,16 @@ class Server extends SocketServer {
 					lock.release();
 
 					// Allow the app to exit
+					#if !haxe5
 					final mainThread = @:privateAccess EntryPoint.mainThread;
 					mainThread.events.runPromised(() -> {});
+					#end
 				});
 			});
 			lock.wait(10.0);
 		}
 	}
-}
-
-private enum abstract StartModel(Bool) {
+} private enum abstract StartModel(Bool) {
 	/** The `start()` call will return when the server is ready to accept connections. **/
 	public var BlockUntilReady = false;
 
