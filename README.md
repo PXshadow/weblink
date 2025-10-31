@@ -39,6 +39,7 @@ Include in build.hxml
 ```
 
 # Targets
+* requires nightly [haxe version](https://haxe.org/download/nightlies/)
 * requires libuv
 * hashlink (uses libuv)
 
