@@ -86,11 +86,11 @@ class Weblink {
 		_updateRoute(path, Head, func);
 	}
 
-	public function listen(port:Int, blocking:Bool = true) {
+	public function listen(?address:String = "0.0.0.0", port:Int, blocking:Bool = true) {
 		this.pathNotFound = chainMiddleware(this.pathNotFound);
 
 		final server = this.server = new Server(this);
-		server.start(new Host("0.0.0.0"), port, blocking ? BlockUntilClosed : BlockUntilReady);
+		server.start(new Host(address), port, blocking ? BlockUntilClosed : BlockUntilReady);
 	}
 
 	public function serve(path:String = "", dir:String = "", cors:String = "*") {
